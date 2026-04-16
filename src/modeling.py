@@ -3,200 +3,339 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.linear_model import LogisticRegression
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split, GridSearchCV, cross_validate
 from sklearn.metrics import (
     accuracy_score, precision_score, recall_score, f1_score,
-    roc_auc_score, confusion_matrix, roc_curve,
+    roc_auc_score, confusion_matrix, roc_curve, cohen_kappa_score,
     classification_report
 )
+from scipy.stats import gmean
 import joblib
+import warnings
+warnings.filterwarnings('ignore')
 
-# Load Training & Test Data
-print("Loading training and test data...")
-X_train = pd.read_csv('Data/X_train.csv')
-X_test = pd.read_csv('Data/X_test.csv')
-y_train = pd.read_csv('Data/y_train.csv').values.ravel()
-y_test = pd.read_csv('Data/y_test.csv').values.ravel()
+# Load Processed Data
+print("Loading processed data...")
+df = pd.read_csv('Data/heart_processed.csv')
+print(f"Data shape: {df.shape}")
 
-print(f"X_train shape: {X_train.shape}")
-print(f"X_test shape: {X_test.shape}")
-print(f"y_train shape: {y_train.shape}")
-print(f"y_test shape: {y_test.shape}")
+# Separate features and target
+X = df.drop('HeartDisease', axis=1)
+y = df['HeartDisease']
 
-# Dictionary to store models and results
-models = {}
-results = {}
+print(f"Features shape: {X.shape}")
+print(f"Target shape: {y.shape}")
+print(f"Target distribution:\n{y.value_counts()}\n")
 
-# 1. LOGISTIC REGRESSION
-print("\n" + "="*50)
-print("Training Logistic Regression")
+# SPLIT 1: Create blind test set (20%)
 print("="*50)
-lr_model = LogisticRegression(random_state=42, max_iter=1000)
-lr_model.fit(X_train, y_train)
-y_pred_lr = lr_model.predict(X_test)
-y_pred_proba_lr = lr_model.predict_proba(X_test)[:, 1]
+print("SPLIT 1: Creating Blind Test Set (20%)")
+print("="*50)
+X_cv, X_test, y_cv, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+print(f"CV Data (80%): {X_cv.shape}")
+print(f"Blind Test Data (20%): {X_test.shape}")
+print(f"  - Class 0: {(y_test == 0).sum()}")
+print(f"  - Class 1: {(y_test == 1).sum()}\n")
 
-models['Logistic Regression'] = lr_model
-results['Logistic Regression'] = {
-    'y_pred': y_pred_lr,
-    'y_pred_proba': y_pred_proba_lr,
-    'accuracy': accuracy_score(y_test, y_pred_lr),
-    'precision': precision_score(y_test, y_pred_lr),
-    'recall': recall_score(y_test, y_pred_lr),
-    'f1': f1_score(y_test, y_pred_lr),
-    'roc_auc': roc_auc_score(y_test, y_pred_proba_lr)
-}
-
-# 2. K-NEAREST NEIGHBORS
-print("\nTraining K-Nearest Neighbors")
-knn_model = KNeighborsClassifier(n_neighbors=5)
-knn_model.fit(X_train, y_train)
-y_pred_knn = knn_model.predict(X_test)
-y_pred_proba_knn = knn_model.predict_proba(X_test)[:, 1]
-
-models['KNN'] = knn_model
-results['KNN'] = {
-    'y_pred': y_pred_knn,
-    'y_pred_proba': y_pred_proba_knn,
-    'accuracy': accuracy_score(y_test, y_pred_knn),
-    'precision': precision_score(y_test, y_pred_knn),
-    'recall': recall_score(y_test, y_pred_knn),
-    'f1': f1_score(y_test, y_pred_knn),
-    'roc_auc': roc_auc_score(y_test, y_pred_proba_knn)
-}
-
-# 3. DECISION TREE
-print("\nTraining Decision Tree")
-dt_model = DecisionTreeClassifier(random_state=42)
-dt_model.fit(X_train, y_train)
-y_pred_dt = dt_model.predict(X_test)
-y_pred_proba_dt = dt_model.predict_proba(X_test)[:, 1]
-
-models['Decision Tree'] = dt_model
-results['Decision Tree'] = {
-    'y_pred': y_pred_dt,
-    'y_pred_proba': y_pred_proba_dt,
-    'accuracy': accuracy_score(y_test, y_pred_dt),
-    'precision': precision_score(y_test, y_pred_dt),
-    'recall': recall_score(y_test, y_pred_dt),
-    'f1': f1_score(y_test, y_pred_dt),
-    'roc_auc': roc_auc_score(y_test, y_pred_proba_dt)
-}
-
-# MODEL COMPARISON
-print("\n" + "="*50)
-print("MODEL PERFORMANCE COMPARISON")
+# SPLIT 2: GridSearchCV with Cross-Validation (5-fold)
+print("="*50)
+print("SPLIT 2: Setup GridSearchCV with 5-Fold CV")
 print("="*50)
 
-results_df = pd.DataFrame(results).T
-print("\n", results_df)
+# Define parameter grid for RandomForest
+param_grid = {
+    'n_estimators': [90, 100, 200],
+    'max_depth': [5, 10, 15],
+    'min_samples_split': [25, 30],
+    'class_weight': ['balanced', None]
+}
 
-# Find best model
-best_model_name = results_df['roc_auc'].idxmax()
-print(f"\n✓ Best Model (by ROC-AUC): {best_model_name}")
-print(f"  Accuracy: {results_df.loc[best_model_name, 'accuracy']:.4f}")
-print(f"  Precision: {results_df.loc[best_model_name, 'precision']:.4f}")
-print(f"  Recall: {results_df.loc[best_model_name, 'recall']:.4f}")
-print(f"  F1-Score: {results_df.loc[best_model_name, 'f1']:.4f}")
-print(f"  ROC-AUC: {results_df.loc[best_model_name, 'roc_auc']:.4f}")
+print("Parameter Grid:")
+for key, value in param_grid.items():
+    print(f"  {key}: {value}")
 
-# DETAILED CLASSIFICATION REPORT FOR BEST MODEL
-print("\n" + "="*50)
-print(f"DETAILED CLASSIFICATION REPORT - {best_model_name.upper()}")
+# Initialize RandomForestClassifier
+rf_base = RandomForestClassifier(random_state=42, n_jobs=-1)
+
+# Setup GridSearchCV with 5-fold cross-validation
+grid_search = GridSearchCV(
+    rf_base,
+    param_grid,
+    cv=5,
+    scoring='roc_auc',
+    n_jobs=-1,
+    verbose=1
+)
+
+print("\nTraining with GridSearchCV (5-Fold CV)...")
+grid_search.fit(X_cv, y_cv)
+
+# Get best model
+best_rf_model = grid_search.best_estimator_
+best_params = grid_search.best_params_
+
+print(f"\nBest Parameters Found:")
+for key, value in best_params.items():
+    print(f"  {key}: {value}")
+print(f"Best CV ROC-AUC Score: {grid_search.best_score_:.4f}\n")
+
+# EVALUATE: Make predictions on CV and test data
 print("="*50)
-best_predictions = results[best_model_name]['y_pred']
-print(classification_report(y_test, best_predictions, target_names=['No Disease', 'Has Disease']))
+print("EVALUATE: Making Predictions & Computing Metrics")
+print("="*50)
 
-# CONFUSION MATRICES
-fig, axes = plt.subplots(1, 3, figsize=(15, 5))
-fig.suptitle('Confusion Matrices for All Models', fontsize=16, fontweight='bold')
+# Predictions on CV data (training performance)
+y_pred_cv = best_rf_model.predict(X_cv)
+y_pred_proba_cv = best_rf_model.predict_proba(X_cv)[:, 1]
 
-for idx, (model_name, pred) in enumerate([(name, results[name]['y_pred']) for name in results]):
-    cm = confusion_matrix(y_test, pred)
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=axes[idx])
-    axes[idx].set_title(model_name)
-    axes[idx].set_xlabel('Predicted')
-    axes[idx].set_ylabel('Actual')
+# Predictions on blind test data
+y_pred_test = best_rf_model.predict(X_test)
+y_pred_proba_test = best_rf_model.predict_proba(X_test)[:, 1]
+
+# Function to calculate metrics
+def calculate_metrics(y_true, y_pred, y_pred_proba, dataset_name):
+    accuracy = accuracy_score(y_true, y_pred)
+    precision = precision_score(y_true, y_pred)
+    recall = recall_score(y_true, y_pred)
+    f1 = f1_score(y_true, y_pred)
+    roc_auc = roc_auc_score(y_true, y_pred_proba)
+    kappa = cohen_kappa_score(y_true, y_pred)
+    
+    # Calculate G-Mean (geometric mean of sensitivities)
+    tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+    tpr = tp / (tp + fn) if (tp + fn) > 0 else 0  # Recall/Sensitivity
+    tnr = tn / (tn + fp) if (tn + fp) > 0 else 0  # Specificity
+    g_mean = gmean([tpr, tnr])
+    
+    cm = confusion_matrix(y_true, y_pred)
+    
+    metrics_dict = {
+        'Dataset': dataset_name,
+        'Accuracy': accuracy,
+        'Precision': precision,
+        'Recall': recall,
+        'F1-Score': f1,
+        'ROC-AUC': roc_auc,
+        'Kappa': kappa,
+        'G-Mean': g_mean,
+        'Confusion_Matrix': cm
+    }
+    
+    return metrics_dict
+
+# Calculate metrics for both datasets
+metrics_cv = calculate_metrics(y_cv, y_pred_cv, y_pred_proba_cv, 'CV (Train)')
+metrics_test = calculate_metrics(y_test, y_pred_test, y_pred_proba_test, 'Test (Blind)')
+
+# Display metrics
+print("\n" + "="*50)
+print("METRICS SUMMARY")
+print("="*50)
+metrics_summary = pd.DataFrame([
+    {
+        'Dataset': 'CV (Train)',
+        'Accuracy': f"{metrics_cv['Accuracy']:.4f}",
+        'Precision': f"{metrics_cv['Precision']:.4f}",
+        'Recall': f"{metrics_cv['Recall']:.4f}",
+        'F1-Score': f"{metrics_cv['F1-Score']:.4f}",
+        'Kappa': f"{metrics_cv['Kappa']:.4f}",
+        'G-Mean': f"{metrics_cv['G-Mean']:.4f}",
+        'ROC-AUC': f"{metrics_cv['ROC-AUC']:.4f}"
+    },
+    {
+        'Dataset': 'Test (Blind)',
+        'Accuracy': f"{metrics_test['Accuracy']:.4f}",
+        'Precision': f"{metrics_test['Precision']:.4f}",
+        'Recall': f"{metrics_test['Recall']:.4f}",
+        'F1-Score': f"{metrics_test['F1-Score']:.4f}",
+        'Kappa': f"{metrics_test['Kappa']:.4f}",
+        'G-Mean': f"{metrics_test['G-Mean']:.4f}",
+        'ROC-AUC': f"{metrics_test['ROC-AUC']:.4f}"
+    }
+])
+print("\n", metrics_summary.to_string(index=False))
+
+# Classification Reports
+print("\n" + "="*50)
+print("CLASSIFICATION REPORT - CV (TRAIN)")
+print("="*50)
+print(classification_report(y_cv, y_pred_cv, target_names=['No Disease', 'Has Disease']))
+
+print("\n" + "="*50)
+print("CLASSIFICATION REPORT - TEST (BLIND)")
+print("="*50)
+print(classification_report(y_test, y_pred_test, target_names=['No Disease', 'Has Disease']))
+
+# VISUALIZATIONS
+print("\n" + "="*50)
+print("GENERATING VISUALIZATIONS")
+print("="*50)
+
+# 1. Confusion Matrices (CV and Test)
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+fig.suptitle('Confusion Matrices - RandomForest Classifier', fontsize=16, fontweight='bold')
+
+cm_cv = confusion_matrix(y_cv, y_pred_cv)
+cm_test = confusion_matrix(y_test, y_pred_test)
+
+sns.heatmap(cm_cv, annot=True, fmt='d', cmap='Blues', ax=axes[0])
+axes[0].set_title('CV Data (Train)')
+axes[0].set_xlabel('Predicted')
+axes[0].set_ylabel('Actual')
+
+sns.heatmap(cm_test, annot=True, fmt='d', cmap='Greens', ax=axes[1])
+axes[1].set_title('Test Data (Blind)')
+axes[1].set_xlabel('Predicted')
+axes[1].set_ylabel('Actual')
 
 plt.tight_layout()
 plt.savefig('outputs/confusion_matrices.png', dpi=300, bbox_inches='tight')
 plt.close()
+print("✓ Saved: outputs/confusion_matrices.png")
 
-# ROC CURVES
+# 2. ROC Curves (CV and Test)
 fig, ax = plt.subplots(figsize=(10, 8))
 
-for model_name in results:
-    y_pred_proba = results[model_name]['y_pred_proba']
-    fpr, tpr, _ = roc_curve(y_test, y_pred_proba)
-    roc_auc = results[model_name]['roc_auc']
-    ax.plot(fpr, tpr, label=f'{model_name} (AUC = {roc_auc:.4f})', linewidth=2)
+fpr_cv, tpr_cv, _ = roc_curve(y_cv, y_pred_proba_cv)
+roc_auc_cv = roc_auc_score(y_cv, y_pred_proba_cv)
 
+fpr_test, tpr_test, _ = roc_curve(y_test, y_pred_proba_test)
+roc_auc_test = roc_auc_score(y_test, y_pred_proba_test)
+
+ax.plot(fpr_cv, tpr_cv, label=f'CV Data (AUC = {roc_auc_cv:.4f})', linewidth=2, color='blue')
+ax.plot(fpr_test, tpr_test, label=f'Test Data (AUC = {roc_auc_test:.4f})', linewidth=2, color='green')
 ax.plot([0, 1], [0, 1], 'k--', label='Random Classifier', linewidth=1)
+
 ax.set_xlabel('False Positive Rate', fontsize=12)
 ax.set_ylabel('True Positive Rate', fontsize=12)
-ax.set_title('ROC Curves - Model Comparison', fontsize=14, fontweight='bold')
-ax.legend(loc='lower right', fontsize=10)
+ax.set_title('ROC Curves - RandomForest Classifier', fontsize=14, fontweight='bold')
+ax.legend(loc='lower right', fontsize=11)
 ax.grid(True, alpha=0.3)
+
 plt.tight_layout()
 plt.savefig('outputs/roc_curves.png', dpi=300, bbox_inches='tight')
 plt.close()
+print("✓ Saved: outputs/roc_curves.png")
 
-# METRICS COMPARISON BAR PLOT
-fig, axes = plt.subplots(1, 4, figsize=(16, 5))
+# 3. Metrics Comparison Bar Plot
+fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+fig.suptitle('Performance Metrics Comparison - CV vs Test', fontsize=16, fontweight='bold')
 
-metrics = ['accuracy', 'precision', 'recall', 'f1']
-colors = plt.cm.Set3(np.linspace(0, 1, len(results)))
+metrics_names = ['Accuracy', 'Precision', 'Recall', 'F1-Score']
+datasets = ['CV (Train)', 'Test (Blind)']
+colors_bars = ['#3498db', '#2ecc71']
 
-for idx, metric in enumerate(metrics):
-    values = [results[model][metric] for model in results]
-    axes[idx].bar(results.keys(), values, color=colors)
-    axes[idx].set_ylabel(metric.capitalize(), fontsize=11)
-    axes[idx].set_title(f'{metric.capitalize()} Comparison', fontsize=12, fontweight='bold')
-    axes[idx].set_ylim([0, 1])
-    axes[idx].tick_params(axis='x', rotation=45)
+for idx, metric_name in enumerate(metrics_names):
+    ax = axes[idx // 2, idx % 2]
     
-    # Add value labels on bars
-    for i, v in enumerate(values):
-        axes[idx].text(i, v + 0.02, f'{v:.3f}', ha='center', fontsize=9)
+    metric_key = metric_name.replace(' ', '_').replace('-', '_')
+    if metric_key == 'F1_Score':
+        metric_key = 'F1-Score'
+    
+    cv_value = metrics_cv[metric_key]
+    test_value = metrics_test[metric_key]
+    
+    bars = ax.bar(datasets, [cv_value, test_value], color=colors_bars, alpha=0.8, edgecolor='black')
+    
+    ax.set_ylabel('Score', fontsize=11)
+    ax.set_title(f'{metric_name}', fontsize=12, fontweight='bold')
+    ax.set_ylim([0, 1])
+    ax.grid(True, axis='y', alpha=0.3)
+    
+    # Add value labels
+    for bar, value in zip(bars, [cv_value, test_value]):
+        height = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width()/2., height + 0.02,
+                f'{value:.4f}', ha='center', va='bottom', fontsize=10, fontweight='bold')
 
 plt.tight_layout()
 plt.savefig('outputs/metrics_comparison.png', dpi=300, bbox_inches='tight')
 plt.close()
+print("✓ Saved: outputs/metrics_comparison.png")
 
-# FEATURE IMPORTANCE (Decision Tree)
-fig, ax = plt.subplots(figsize=(10, 6))
+# 4. Feature Importance (Top 15)
+fig, ax = plt.subplots(figsize=(11, 6))
 
-model = models['Decision Tree']
-feature_names = X_train.columns
-importances = model.feature_importances_
-indices = np.argsort(importances)[-10:]  # Top 10 features
+feature_names = X.columns
+importances = best_rf_model.feature_importances_
+indices = np.argsort(importances)[-15:]  # Top 15 features
 
-ax.barh(range(len(indices)), importances[indices], color='steelblue')
+ax.barh(range(len(indices)), importances[indices], color='steelblue', alpha=0.8, edgecolor='black')
 ax.set_yticks(range(len(indices)))
-ax.set_yticklabels([feature_names[i] for i in indices])
-ax.set_xlabel('Importance', fontsize=11)
-ax.set_title('Decision Tree - Top 10 Features', fontsize=12, fontweight='bold')
+ax.set_yticklabels([feature_names[i] for i in indices], fontsize=10)
+ax.set_xlabel('Importance Score', fontsize=11)
+ax.set_title('RandomForest - Top 15 Most Important Features', fontsize=13, fontweight='bold')
+ax.grid(True, axis='x', alpha=0.3)
 
 plt.tight_layout()
 plt.savefig('outputs/feature_importance.png', dpi=300, bbox_inches='tight')
 plt.close()
+print("✓ Saved: outputs/feature_importance.png")
 
-# SAVE RESULTS
-results_summary = results_df[['accuracy', 'precision', 'recall', 'f1', 'roc_auc']].copy()
-results_summary.to_csv('outputs/model_results.csv')
+# SAVE RESULTS AND MODEL
+print("\n" + "="*50)
+print("SAVING RESULTS & MODEL")
+print("="*50)
 
-# Save best model predictions
-best_predictions_df = pd.DataFrame({
+# Save comprehensive metrics report
+metrics_report = {
+    'CV (Train)': {
+        'Accuracy': metrics_cv['Accuracy'],
+        'Precision': metrics_cv['Precision'],
+        'Recall': metrics_cv['Recall'],
+        'F1-Score': metrics_cv['F1-Score'],
+        'Kappa': metrics_cv['Kappa'],
+        'G-Mean': metrics_cv['G-Mean'],
+        'ROC-AUC': metrics_cv['ROC-AUC']
+    },
+    'Test (Blind)': {
+        'Accuracy': metrics_test['Accuracy'],
+        'Precision': metrics_test['Precision'],
+        'Recall': metrics_test['Recall'],
+        'F1-Score': metrics_test['F1-Score'],
+        'Kappa': metrics_test['Kappa'],
+        'G-Mean': metrics_test['G-Mean'],
+        'ROC-AUC': metrics_test['ROC-AUC']
+    }
+}
+
+metrics_df = pd.DataFrame(metrics_report).T
+metrics_df.to_csv('outputs/model_results.csv')
+print("✓ Saved: outputs/model_results.csv")
+
+# Save predictions
+predictions_df = pd.DataFrame({
     'Actual': y_test,
-    'Predicted': results[best_model_name]['y_pred'],
-    'Probability': results[best_model_name]['y_pred_proba']
+    'Predicted': y_pred_test,
+    'Probability_Class_0': 1 - y_pred_proba_test,
+    'Probability_Class_1': y_pred_proba_test
 })
-best_predictions_df.to_csv('outputs/best_model_predictions.csv', index=False)
+predictions_df.to_csv('outputs/best_model_predictions.csv', index=False)
+print("✓ Saved: outputs/best_model_predictions.csv")
 
-print("\n")
-print("MODELING COMPLETE!\n")
+# Save best RandomForest model
+joblib.dump(best_rf_model, 'outputs/best_model.pkl')
+print("✓ Saved: outputs/best_model.pkl")
 
-best_model = models[best_model_name]
-joblib.dump(best_model, f"outputs/best_model.pkl")
+# Save best parameters and GridSearch info
+gridsearch_info = {
+    'best_params': best_params,
+    'best_cv_score': grid_search.best_score_,
+    'cv_results': grid_search.cv_results_
+}
+joblib.dump(gridsearch_info, 'outputs/gridsearch_info.pkl')
+print("✓ Saved: outputs/gridsearch_info.pkl")
+
+print("\n" + "="*50)
+print("MODELING COMPLETE!")
+print("="*50)
+print(f"\nBest Model: RandomForestClassifier")
+print(f"Best Parameters: {best_params}")
+print(f"\nTest Set Performance:")
+print(f"  Accuracy: {metrics_test['Accuracy']:.4f}")
+print(f"  ROC-AUC: {metrics_test['ROC-AUC']:.4f}")
+print(f"  F1-Score: {metrics_test['F1-Score']:.4f}")
+print(f"  G-Mean: {metrics_test['G-Mean']:.4f}")

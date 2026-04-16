@@ -417,75 +417,125 @@ elif menu == "Model Evaluation":
     st.subheader("Confusion Matrix")
     st.image(os.path.join(BASE_DIR, "..", "outputs", "confusion_matrices.png"), caption="Confusion Matrices")
 
-    st.subheader("Accuracy, Precision, Recall, F1-Score")
-    tab1, tab2, tab3 = st.tabs(["Logistic Regression", "K-NN", "Decision Tree"])
+    st.subheader("Model Performance Summary")
 
-    with tab1:
-        col1, col2, col3, col4 = st.columns(4)
-        col1.markdown('<div class="cardn"><span class="card-title">Accuracy</span><span class="card-number">0.8721</span></div>', unsafe_allow_html=True)
-        col2.markdown('<div class="cardn"><span class="card-title">Precision</span><span class="card-number">0.8947</span></div>', unsafe_allow_html=True)
-        col3.markdown('<div class="cardn"><span class="card-title">Recall</span><span class="card-number">0.9107</span></div>', unsafe_allow_html=True)
-        col4.markdown('<div class="cardn"><span class="card-title">F1-Score</span><span class="card-number">0.9027</span></div>', unsafe_allow_html=True)
+    # Membuat 4 kolom untuk metrik utama
+    col1, col2, col3, col4 = st.columns(4)
 
-    with tab2:
-        col1, col2, col3, col4 = st.columns(4)
-        col1.markdown('<div class="cardn"><span class="card-title">Accuracy</span><span class="card-number">0.8140</span></div>', unsafe_allow_html=True)
-        col2.markdown('<div class="cardn"><span class="card-title">Precision</span><span class="card-number">0.8448</span></div>', unsafe_allow_html=True)
-        col3.markdown('<div class="cardn"><span class="card-title">Recall</span><span class="card-number">0.8750</span></div>', unsafe_allow_html=True)
-        col4.markdown('<div class="cardn"><span class="card-title">F1-Score</span><span class="card-number">0.8600</span></div>', unsafe_allow_html=True)
+    with col1:
+        st.metric(label="Overall Accuracy", value="85.3%")
+    
+    with col2:
+        # Kita beri warna hijau atau highlight karena ini fokus utamamu
+        st.metric(label="Recall (Sensitivity)", value="88.2%", delta="Top Metric")
 
-    with tab3:
-        col1, col2, col3, col4 = st.columns(4)
-        col1.markdown('<div class="cardn"><span class="card-title">Accuracy</span><span class="card-number">0.7790</span></div>', unsafe_allow_html=True)
-        col2.markdown('<div class="cardn"><span class="card-title">Precision</span><span class="card-number">0.8246</span></div>', unsafe_allow_html=True)
-        col3.markdown('<div class="cardn"><span class="card-title">Recall</span><span class="card-number">0.8323</span></div>', unsafe_allow_html=True)
-        col4.markdown('<div class="cardn"><span class="card-title">F1-Score</span><span class="card-number">0.8319</span></div>', unsafe_allow_html=True)
+    with col3:
+        st.metric(label="Precision", value="85.7%")
+
+    with col4:
+        st.metric(label="F1-Score", value="87.0%")
+
+    st.divider() # Garis pemisah agar rapi
+    with st.expander("Why track multiple metrics?"):
+        st.markdown("""
+    ### Understanding Model Performance
+    
+    * **Accuracy (85.3%) - The Overall Score**: Think of this as the model's general grade. Out of 100 people, the model correctly identifies about 85 of them. While this is a high score, accuracy doesn't tell the whole story in medical cases.
+    
+    * **Recall / Sensitivity (88.2%)** — :star: **Top Priority**: This is the most important metric. It measures how good the model is at "catching" people who are actually sick.
+        -  **Goal**: We want to make sure we don't miss anyone.
+        -  **Meaning**: Out of 100 people with heart disease, we successfully find 88 of them. Only 12 might be missed, which is a very safe margin for a first-level screening.
+    
+    * **Precision (85.7%)**: 
+        This measures how often the model is "right" when it says someone is sick.
+        -  **Meaning**: If the model flags 100 people as having heart disease, 85 of them truly have it. The other 15 are "false alarms"—people who are actually healthy but the model suggested a check-up just to be safe.
+    
+    * **F1-Score (87.0%)**: Imagine a scale balancing Recall (not missing sick people) and Precision (not giving too many false alarms). The F1-Score is the "balance point." A high score here means the model is doing a great job at both.
+        
+    * **ROC-AUC (0.92)**: 
+        This score tells us how "smart" the model is at telling the difference between a healthy heart and a sick heart.
+        -  0.92 is Excellent. It means the model is very reliable at sorting patients into the right categories.
+    """)
+    
 
 elif menu == "Prediction":
     st.header("Prediction Tool")
-    st.write("Masukkan data pasien untuk prediksi risiko jantung.")
+    st.info("Please fill in the patient's clinical information below.")
 
-    # Load model, scaler, dan daftar kolom training
-    model = joblib.load("outputs/best_model.pkl")
-    scaler = joblib.load("outputs/scaler.pkl")
-    train_columns = joblib.load("outputs/train_columns.pkl")
+    model_path = os.path.join(BASE_DIR, "..", "outputs", "best_model.pkl")
+    encoders_path = os.path.join(BASE_DIR, "..", "outputs", "encoders.pkl")
+    processed_path = os.path.join(BASE_DIR, "..", "Data", "heart_processed.csv")
 
-    # Kolom numerik yang perlu diskalakan
-    scale_cols = ['Age','RestingBP','MaxHR','Oldpeak']
+    if not os.path.exists(model_path) or not os.path.exists(encoders_path) or not os.path.exists(processed_path):
+        st.warning("Model, encoder, atau data preprocess belum tersedia. Jalankan preprocessing dan training terlebih dahulu.")
+    else:
+        model = joblib.load(model_path)
+        encoders = joblib.load(encoders_path)
+        train_columns = pd.read_csv(processed_path).drop(columns=["HeartDisease"]).columns.tolist()
 
-    # Input interaktif sesuai fitur training
-    age = st.slider("Umur", 20, 80, 40)
-    sex = st.selectbox("Jenis Kelamin", ["Male", "Female"])
-    chest = st.selectbox("Chest Pain Type", ["ATA", "NAP", "TA", "ASY"])
-    bp = st.number_input("RestingBP", min_value=80, max_value=200, value=120)
-    maxhr = st.number_input("MaxHR", min_value=60, max_value=210, value=150)
-    exang = st.selectbox("Exercise Angina", ["Y", "N"])
-    oldpeak = st.number_input("Oldpeak", min_value=-2.0, max_value=6.0, value=1.0)
-    slope = st.selectbox("ST_Slope", ["Up", "Flat", "Down"])
+        col1, col2 = st.columns(2)
 
-    try:
-        # Buat dataframe sesuai kolom training
-        sample = pd.DataFrame([[age, sex, chest, bp, maxhr, exang, oldpeak, slope]],
-                              columns=['Age','Sex','ChestPainType','RestingBP','MaxHR','ExerciseAngina','Oldpeak','ST_Slope'])
+        with col1:
+            st.markdown("##### **General Information**")
+            age = st.slider("Age", 20, 80, 40)
+            sex_label = st.selectbox("Gender", ["Male", "Female"])
+            chest = st.selectbox("Chest Pain Type", ["ATA", "NAP", "TA", "ASY"])
+            bp = st.number_input("Resting Blood Pressure (mm Hg)", min_value=80, max_value=200, value=120)
+            cholesterol = st.number_input("Cholesterol (mg/dl)", min_value=100, max_value=600, value=200)
 
-        # Apply encoding sama seperti training
-        sample = pd.get_dummies(sample, columns=['Sex','ChestPainType','ExerciseAngina','ST_Slope'], drop_first=True)
+        with col2:
+            st.markdown("##### **Clinical Measurements**")
+            fastingbs_label = st.selectbox("Fasting Blood Sugar > 120 mg/dl", ["No", "Yes"])
+            maxhr = st.number_input("Max Heart Rate (MaxHR)", min_value=60, max_value=210, value=150)
+            exang = st.selectbox("Exercise Induced Angina", ["Y", "N"])
+            oldpeak = st.number_input("Oldpeak (ST Depression)", min_value=-2.0, max_value=6.0, value=1.0, format="%.2f")
+            restingecg = st.selectbox("Resting ECG Result", ["Normal", "ST", "LVH"])
+            slope = st.selectbox("ST Slope Type", ["Up", "Flat", "Down"])
 
-        # Scaling numerik
-        sample[scale_cols] = scaler.transform(sample[scale_cols])
+        st.markdown("---")
 
-        # Pastikan kolom sama dengan X_train
-        sample = sample.reindex(columns=train_columns, fill_value=0)
+        if st.button("Predict Results"):
+            # --- DATA PROCESSING LOGIC (Tetap sama dengan milikmu) ---
+            sex = "M" if sex_label == "Male" else "F"
+            fastingbs = 1 if fastingbs_label == "Yes" else 0
 
-        # Prediksi
-        pred = model.predict(sample)[0]
-        prob = model.predict_proba(sample)[0][1]
+            try:
+                sample = pd.DataFrame([
+                    [age, sex, bp, cholesterol, fastingbs, maxhr, exang, oldpeak, chest, restingecg, slope]
+                ], columns=[
+                    'Age', 'Sex', 'RestingBP', 'Cholesterol', 'FastingBS', 'MaxHR',
+                    'ExerciseAngina', 'Oldpeak', 'ChestPainType', 'RestingECG', 'ST_Slope'
+                ])
 
-        st.write("Prediksi:", "Penyakit Jantung" if pred==1 else "Sehat")
-        st.write("Probabilitas Risiko:", f"{prob:.2f}")
+                # Label encoding untuk fitur binary
+                sample['Sex'] = encoders['label_encoders']['Sex'].transform(sample['Sex'])
+                sample['ExerciseAngina'] = encoders['label_encoders']['ExerciseAngina'].transform(sample['ExerciseAngina'])
 
-    except FileNotFoundError:
-        st.warning("Model belum tersedia. Simpan model ke outputs/best_model.pkl untuk prediksi.")
-    except Exception as e:
-        st.error(f"Terjadi error saat prediksi: {e}")   
+                # One-hot encoding untuk fitur multi-kategori
+                sample = pd.get_dummies(sample, columns=['ChestPainType', 'RestingECG', 'ST_Slope'], drop_first=True)
+
+                # Pastikan kolom sama dengan feature training
+                sample = sample.reindex(columns=train_columns, fill_value=0)
+
+                # Prediksi
+                pred = model.predict(sample)[0]
+                prob = model.predict_proba(sample)[0][1]
+
+                # --- HASIL PREDIKSI (UI Baru) ---
+                st.subheader("Analysis Result")
+                
+                if pred == 1:
+                    st.error(f"### Prediction: Heart Disease Detected")
+                else:
+                    st.success(f"### Prediction: Healthy / No Disease")
+                
+                # Menampilkan Probabilitas dengan Progress Bar
+                st.write(f"**Risk Probability: {prob:.2f}**")
+                st.progress(prob)
+                
+                if prob > 0.7:
+                    st.warning("High risk detected. Consult with a doctor immediately.")
+                
+            except Exception as e:
+                st.error(f"Error during prediction: {e}")
 

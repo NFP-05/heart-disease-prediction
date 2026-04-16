@@ -3,13 +3,27 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 from scipy.stats import ttest_ind, chi2_contingency
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import LabelEncoder
 import joblib
 
 # Calling Dataset
 df: pd.DataFrame = pd.read_csv("Data/heart.csv")
 print(df.head())
+
+# Melihat struktur data dan tipe-tipe data
+print("\n" + "="*50)
+print("STRUKTUR DATA DAN TIPE-TIPE DATA")
+print("="*50)
+print(f"\nDimension dataset: {df.shape}")
+print("\nInfo Struktur Data:")
+print(df.info())
+print("\nTipe data per kolom:")
+print(df.dtypes)
+print("\nDeskripsi statistik:")
+print(df.describe())
+print("\nUnique values per fitur:")
+for col in df.columns:
+    print(f"  {col}: {df[col].nunique()} unique values")
 
 # Checking Dataset (Missing Value, Zero Value, & Duplicate Value)
 print(f"Duplicate rows: {df.duplicated().sum()}")
@@ -20,59 +34,108 @@ num_cols = df.select_dtypes(include="number").columns
 table_zeros = (df[num_cols] == 0).sum()
 print("\nZero counts in numeric columns:\n", table_zeros)
 
-# Remove rows with zero values in key medical columns
-zero_columns = ['Cholesterol', 'RestingBP', 'Oldpeak']
-
+# Imputasi nilai nol pada Cholesterol dan RestingBP menggunakan Median
+print(f"\n" + "="*50)
+print("IMPUTASI NILAI NOL")
+print("="*50)
 print(f"\nOriginal dataset shape: {df.shape}")
-print(f"Removing rows where {zero_columns} contain zeros...")
 
-df_cleaned = df[(df[zero_columns] != 0).all(axis=1)].copy()
+# Hitung median untuk Cholesterol dan RestingBP
+cholesterol_median = df[df['Cholesterol'] != 0]['Cholesterol'].median()
+resting_bp_median = df[df['RestingBP'] != 0]['RestingBP'].median()
 
-print(f"Cleaned dataset shape: {df_cleaned.shape}")
-print(f"Rows removed: {df.shape[0] - df_cleaned.shape[0]}")
+print(f"\nNilai nol sebelum imputasi:")
+print(f"  Cholesterol: {(df['Cholesterol'] == 0).sum()} nol values")
+print(f"  RestingBP: {(df['RestingBP'] == 0).sum()} nol values")
+print(f"  Oldpeak: {(df['Oldpeak'] == 0).sum()} nol values")
 
-# Save cleaned data for hypothesis testing in R
+# Lakukan imputasi
+df_cleaned = df.copy()
+df_cleaned.loc[df_cleaned['Cholesterol'] == 0, 'Cholesterol'] = cholesterol_median
+df_cleaned.loc[df_cleaned['RestingBP'] == 0, 'RestingBP'] = resting_bp_median
+
+print(f"\nMedian values:")
+print(f"  Cholesterol median: {cholesterol_median}")
+print(f"  RestingBP median: {resting_bp_median}")
+print(f"\nCleaned dataset shape: {df_cleaned.shape}")
+print(f"\nNilai nol setelah imputasi:")
+print(f"  Cholesterol: {(df_cleaned['Cholesterol'] == 0).sum()} nol values")
+print(f"  RestingBP: {(df_cleaned['RestingBP'] == 0).sum()} nol values")
+print(f"  Oldpeak: {(df_cleaned['Oldpeak'] == 0).sum()} nol values")
+
+# Save cleaned data
 df_cleaned.to_csv('Data/heart_cleaned.csv', index=False)
 
-# FEATURE SELECTION, ENCODING, SCALING, SPLIT FOR ML
-# Feature Selection: drop non-significant based on hypothesis results
-selected_features = [
-    'Age', 'Sex', 'ChestPainType', 'RestingBP', 'MaxHR',
-    'ExerciseAngina', 'Oldpeak', 'ST_Slope', 'HeartDisease'
-]
-ml_df = df_cleaned[selected_features].copy()
-print(f"Selected features: {selected_features}")
+# ENCODING CATEGORICAL FEATURES
+print(f"\n" + "="*50)
+print("ENCODING CATEGORICAL FEATURES")
+print("="*50)
 
-# Encoding categorical features
-ml_df = pd.get_dummies(
-    ml_df,
-    columns=['Sex', 'ChestPainType', 'ExerciseAngina', 'ST_Slope'],
-    drop_first=True
-)
-print("One-hot encoding done. Columns now:")
+ml_df = df_cleaned.copy()
+
+# Identificate Categorical Feat.
+categorical_cols = ml_df.select_dtypes(include=['object']).columns.tolist()
+print(f"\nFeat. categorical: {categorical_cols}")
+
+# Encoding (Label Encoding & One-Hot Encoding)
+binary_cols = []
+multiclass_cols = []
+
+for col in categorical_cols:
+    n_unique = ml_df[col].nunique()
+    print(f"  {col}: {n_unique} Category")
+    if n_unique == 2:
+        binary_cols.append(col)
+    elif n_unique > 2:
+        multiclass_cols.append(col)
+
+print(f"\nFeat. binary (label encoding): {binary_cols}")
+print(f"Feat. multiclass (one-hot encoding): {multiclass_cols}")
+
+# Dictionary untuk menyimpan encoder objects
+encoders_dict = {}
+
+# Label Encoding untuk fitur dengan 2 kategori
+if binary_cols:
+    print(f"\nDoing label encoding at: {binary_cols}")
+    encoders_dict['label_encoders'] = {}
+    for col in binary_cols:
+        le = LabelEncoder()
+        ml_df[col] = le.fit_transform(ml_df[col])
+        encoders_dict['label_encoders'][col] = le
+        print(f"  {col}: {le.classes_} -> {list(range(len(le.classes_)))}")
+
+# One-Hot Encoding untuk fitur dengan >2 kategori
+if multiclass_cols:
+    print(f"\nDoing one-hot encoding at: {multiclass_cols}")
+    ml_df_before_ohe = ml_df.copy()
+    ml_df = pd.get_dummies(ml_df, columns=multiclass_cols, drop_first=True)
+    encoders_dict['onehot_encoders'] = {
+        'columns': multiclass_cols,
+        'encoded_columns': [col for col in ml_df.columns if col not in ml_df_before_ohe.columns]
+    }
+    print(f"\nFeat. after one-hot encoding:")
+    print(ml_df.columns.tolist())
+else:
+    print(f"\nTheres no feat. with >2 category for one-hot encoding")
+    encoders_dict['onehot_encoders'] = None
+
+print(f"\nFinal dataset shape: {ml_df.shape}")
+print(f"\nFinal columns:")
 print(ml_df.columns.tolist())
+print(f"\nData types:")
+print(ml_df.dtypes)
 
-# Scaling numeric features
-scaler = StandardScaler()
-scale_cols = ['Age', 'RestingBP', 'MaxHR', 'Oldpeak']
-ml_df[scale_cols] = scaler.fit_transform(ml_df[scale_cols])
+# Save processed data
+ml_df.to_csv('Data/heart_processed.csv', index=False)
+print(f"\nSaved: Data/heart_processed.csv")
 
-print("Numeric scaling done (StandardScaler).")
-
-# Train/test split
-X = ml_df.drop('HeartDisease', axis=1)
-y = ml_df['HeartDisease']
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42, stratify=y
-)
-print(f"Train/test split done: X_train={X_train.shape}, X_test={X_test.shape}")
-
-# Save split files for modeling
-X_train.to_csv('Data/X_train.csv', index=False)
-X_test.to_csv('Data/X_test.csv', index=False)
-y_train.to_csv('Data/y_train.csv', index=False)
-y_test.to_csv('Data/y_test.csv', index=False)
-print("Saved: Data/X_train.csv, Data/X_test.csv, Data/y_train.csv, Data/y_test.csv")
-
-joblib.dump(X_train.columns.tolist(), "outputs/train_columns.pkl")
-joblib.dump(scaler, "outputs/scaler.pkl")
+# Save encoder objects
+joblib.dump(encoders_dict, 'outputs/encoders.pkl')
+print(f"\nEncoder objects saved to: outputs/encoders.pkl")
+print(f"\nEncoder dictionary structure:")
+print(f"  - label_encoders: {list(encoders_dict.get('label_encoders', {}).keys())}")
+if encoders_dict.get('onehot_encoders'):
+    print(f"  - onehot_encoders:")
+    print(f"      - columns: {encoders_dict['onehot_encoders']['columns']}")
+    print(f"      - encoded_columns: {len(encoders_dict['onehot_encoders']['encoded_columns'])} columns")
