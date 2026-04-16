@@ -30,9 +30,9 @@ Heart-Disease-Prediction/
 ---
 
 ## 🚀 Features
-- **Data Preprocessing**: Cleaning missing/zero values, encoding categorical features, scaling numeric features.
-- **Model Training**: Logistic Regression and other ML algorithms with evaluation metrics.
-- **Visualization**: Confusion matrices, ROC curves, feature importance.
+- **Data Preprocessing**: Imputations, encoding categorical features, scaling numeric features.
+- **Model Training**: Random Forest.
+- **Visualization**: Confusion matrices, ROC curves, metrics comparisons.
 - **Dashboard**: Interactive Streamlit app for patient risk prediction.
 
 ---
@@ -45,10 +45,11 @@ Heart-Disease-Prediction/
 ---
 
 ## 📊 Workflow
-1. **Preprocessing**: Clean dataset, encode categorical variables, scale numeric features.
-2. **Modeling**: Train/test split, fit models, evaluate performance.
-3. **Evaluation**: Generate metrics, confusion matrices, ROC curves.
-4. **Deployment**: Save best model (`best_model.pkl`) and integrate with Streamlit dashboard.
+1. **Checking Dataset Quality**: Missing Value, Duplicate and Zero
+2. **Preprocessing**: Imputations, encode categorical variables.
+3. **Modeling**: Train&Validation(CV)/test split, tuning models, evaluate performance.
+4. **Evaluation**: Generate metrics, confusion matrices, ROC curves.
+5. **Deployment**: Save best model (`best_model.pkl`) and integrate with Streamlit dashboard.
 
 ---
 
