@@ -118,7 +118,10 @@ st.markdown("""
 st.title("🫀 Heart Disease Prediction Dashboard")
 
 # Load dataset
-df = pd.read_csv(r"C:/Users/NOUFAL PELLU/Documents/Visual Studio 2022/CODE/PROJECT/EXERPROJECT/HEARTDISEASE/Data/heart_cleaned.csv")
+path_cleaned = os.path.join(BASE_DIR, "..", "Data", "heart_cleaned.csv")
+
+# 3. Baca filenya menggunakan path yang sudah fleksibel tadi
+df = pd.read_csv(path_cleaned)
 
 # Sidebar navigasi
 menu = st.sidebar.selectbox("Navigation", ["Overview", "EDA", "Model Evaluation", "Prediction"])
