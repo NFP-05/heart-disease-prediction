@@ -130,7 +130,7 @@ if menu == "Overview":
     st.header("Overview")
     st.markdown("---")
     
-    st.write("This dataset contains clinical records of patients with 12 medical variables. The original dataset included 918 records, but after cleaning and preprocessing, 429 observations remain. These cover demographic information, examination results, and symptoms related to heart health.")
+    st.write("This dataset contains clinical records of patients with 12 medical variables. The original dataset included 918 record. These cover demographic information, examination results, and symptoms related to heart health.")
     
     st.write("This dashboard is created to explore heart patient data, evaluate prediction models, and provide interactive risk predictions.")
 
