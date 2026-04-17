@@ -1,7 +1,8 @@
 # heart-disease-prediction
+
 Heart Disease Prediction project — a machine learning workflow for data preprocessing, model training, evaluation, and interactive dashboard deployment. Built for learning and experimentation in data science and machine learning.
 
-**Link To Dashboard**: 
+**Link To Dashboard**:
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://nfp-05-heart-disease-prediction-dashboarddash-7u1akx.streamlit.app/)
 
 ## 📂 Project Structure
@@ -33,6 +34,7 @@ Heart-Disease-Prediction/
 ---
 
 ## 🚀 Features
+
 - **Data Preprocessing**: Imputations, encoding categorical features, scaling numeric features.
 - **Model Training**: Random Forest.
 - **Visualization**: Confusion matrices, ROC curves, metrics comparisons.
@@ -41,13 +43,15 @@ Heart-Disease-Prediction/
 ---
 
 ## 🛠️ Tech Stack
+
 - **Languages:** Python
-- **Libraries:** Pandas, NumPy, Scikit-learn, Matplotlib, Seaborn, Streamlit, Joblib  
+- **Libraries:** Pandas, NumPy, Scikit-learn, Matplotlib, Seaborn, Streamlit, Joblib
 - **Tools:** VS Code, Git/GitHub
 
 ---
 
 ## 📊 Workflow
+
 1. **Checking Dataset Quality**: Missing Value, Duplicate and Zero
 2. **Preprocessing**: Imputations, encode categorical variables.
 3. **Modeling**: Train&Validation(CV)/test split, tuning models, evaluate performance.
@@ -57,6 +61,7 @@ Heart-Disease-Prediction/
 ---
 
 ## 🎯 Goals
+
 - Learn end-to-end ML workflow with a real dataset.
 - Practice reproducible project structure.
 - Build an interactive dashboard for predictions.
