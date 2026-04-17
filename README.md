@@ -12,22 +12,26 @@ Heart-Disease-Prediction/
 ├── Data/                  # Raw and cleaned datasets
 │   ├── heart.csv
 │   ├── heart_cleaned.csv
-│   ├── X_train.csv
-│   ├── X_test.csv
-│   ├── y_train.csv
-│   └── y_test.csv
+│   └── heart_processed.csv
 ├── src/                   # Python scripts for preprocessing & modeling
 │   ├── preprocess.py
-│   ├── modeling.py
-│   └── Profiling_Dataset.py
+│   └── modeling.py
 ├── dashboard/             # Streamlit dashboard for prediction
 │   └── dash.py
 ├── outputs/               # Model and evaluation results
 │   ├── best_model.pkl
+│   ├── best_model_predictions.pkl
+│   ├── encoders.pkl
 │   ├── metrics_comparison.png
 │   ├── confusion_matrices.png
+│   ├── feature_importance.png
+│   ├── gridsearch_info.pkl
+│   ├── model_results.csv
 │   ├── roc_curves.png
-│   └── report.html
+│   ├── scaler.pkl
+│   └── train_columns.pkl
+│   requirements.txt
+│   .gitignore
 └── README.md
 ```
 
