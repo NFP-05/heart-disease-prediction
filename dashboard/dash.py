@@ -468,15 +468,15 @@ elif menu == "Prediction":
     model_path = os.path.join(BASE_DIR, "..", "outputs", "best_model.pkl")
     encoders_path = os.path.join(BASE_DIR, "..", "outputs", "encoders.pkl")
     scaler_path = os.path.join(BASE_DIR, "..", "outputs", "scaler.pkl")
-    processed_path = os.path.join(BASE_DIR, "..", "Data", "heart_processed.csv")
+    train_columns_path = os.path.join(BASE_DIR, "..", "outputs", "train_columns.pkl")
 
-    if not os.path.exists(model_path) or not os.path.exists(encoders_path) or not os.path.exists(scaler_path) or not os.path.exists(processed_path):
-        st.warning("Model, encoder, scaler, atau data preprocess belum tersedia. Jalankan preprocessing dan training terlebih dahulu.")
+    if not os.path.exists(model_path) or not os.path.exists(encoders_path) or not os.path.exists(scaler_path) or not os.path.exists(train_columns_path):
+        st.warning("Model, encoder, scaler, atau train_columns belum tersedia. Jalankan preprocessing dan training terlebih dahulu.")
     else:
         model = joblib.load(model_path)
         encoders = joblib.load(encoders_path)
         scaler = joblib.load(scaler_path)
-        train_columns = pd.read_csv(processed_path).drop(columns=["HeartDisease"]).columns.tolist()
+        train_columns = joblib.load(train_columns_path)
 
         col1, col2 = st.columns(2)
 
