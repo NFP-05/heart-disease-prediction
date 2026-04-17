@@ -48,9 +48,9 @@ print("="*50)
 # Define parameter grid for RandomForest
 param_grid = {
     'n_estimators': [90, 100, 200],
-    'max_depth': [5, 10, 15],
+    'max_depth': [10, 15, 20],
     'min_samples_split': [25, 30],
-    'class_weight': ['balanced', None]
+    'class_weight': [None]
 }
 
 print("Parameter Grid:")

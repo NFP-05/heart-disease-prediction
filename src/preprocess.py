@@ -3,14 +3,14 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 from scipy.stats import ttest_ind, chi2_contingency
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 import joblib
 
 # Calling Dataset
 df: pd.DataFrame = pd.read_csv("Data/heart.csv")
 print(df.head())
 
-# Melihat struktur data dan tipe-tipe data
+# Data Structure
 print("\n" + "="*50)
 print("STRUKTUR DATA DAN TIPE-TIPE DATA")
 print("="*50)
@@ -34,13 +34,12 @@ num_cols = df.select_dtypes(include="number").columns
 table_zeros = (df[num_cols] == 0).sum()
 print("\nZero counts in numeric columns:\n", table_zeros)
 
-# Imputasi nilai nol pada Cholesterol dan RestingBP menggunakan Median
+# Imputation
 print(f"\n" + "="*50)
 print("IMPUTASI NILAI NOL")
 print("="*50)
 print(f"\nOriginal dataset shape: {df.shape}")
 
-# Hitung median untuk Cholesterol dan RestingBP
 cholesterol_median = df[df['Cholesterol'] != 0]['Cholesterol'].median()
 resting_bp_median = df[df['RestingBP'] != 0]['RestingBP'].median()
 
@@ -49,7 +48,6 @@ print(f"  Cholesterol: {(df['Cholesterol'] == 0).sum()} nol values")
 print(f"  RestingBP: {(df['RestingBP'] == 0).sum()} nol values")
 print(f"  Oldpeak: {(df['Oldpeak'] == 0).sum()} nol values")
 
-# Lakukan imputasi
 df_cleaned = df.copy()
 df_cleaned.loc[df_cleaned['Cholesterol'] == 0, 'Cholesterol'] = cholesterol_median
 df_cleaned.loc[df_cleaned['RestingBP'] == 0, 'RestingBP'] = resting_bp_median
@@ -95,7 +93,7 @@ print(f"Feat. multiclass (one-hot encoding): {multiclass_cols}")
 # Dictionary untuk menyimpan encoder objects
 encoders_dict = {}
 
-# Label Encoding untuk fitur dengan 2 kategori
+# Label Encoding
 if binary_cols:
     print(f"\nDoing label encoding at: {binary_cols}")
     encoders_dict['label_encoders'] = {}
@@ -105,11 +103,11 @@ if binary_cols:
         encoders_dict['label_encoders'][col] = le
         print(f"  {col}: {le.classes_} -> {list(range(len(le.classes_)))}")
 
-# One-Hot Encoding untuk fitur dengan >2 kategori
+# One-Hot Encoding
 if multiclass_cols:
     print(f"\nDoing one-hot encoding at: {multiclass_cols}")
     ml_df_before_ohe = ml_df.copy()
-    ml_df = pd.get_dummies(ml_df, columns=multiclass_cols, drop_first=True)
+    ml_df = pd.get_dummies(ml_df, columns=multiclass_cols, drop_first=False)
     encoders_dict['onehot_encoders'] = {
         'columns': multiclass_cols,
         'encoded_columns': [col for col in ml_df.columns if col not in ml_df_before_ohe.columns]
@@ -126,9 +124,26 @@ print(ml_df.columns.tolist())
 print(f"\nData types:")
 print(ml_df.dtypes)
 
+# Scale numeric features for modeling
+print(f"\n" + "="*50)
+print("SCALING NUMERIC FEATURES")
+print("="*50)
+scale_cols = ['Age', 'RestingBP', 'Cholesterol', 'MaxHR', 'Oldpeak']
+scaler = StandardScaler()
+ml_df[scale_cols] = scaler.fit_transform(ml_df[scale_cols])
+print(f"Scaled columns: {scale_cols}")
+print(ml_df[scale_cols].describe())
+
 # Save processed data
 ml_df.to_csv('Data/heart_processed.csv', index=False)
 print(f"\nSaved: Data/heart_processed.csv")
+
+# Save scaler and training columns
+joblib.dump(scaler, 'outputs/scaler.pkl')
+print(f"\nScaler saved to: outputs/scaler.pkl")
+train_columns = ml_df.drop(columns=['HeartDisease']).columns.tolist()
+joblib.dump(train_columns, 'outputs/train_columns.pkl')
+print(f"Train columns saved to: outputs/train_columns.pkl")
 
 # Save encoder objects
 joblib.dump(encoders_dict, 'outputs/encoders.pkl')

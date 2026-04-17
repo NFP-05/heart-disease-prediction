@@ -467,13 +467,15 @@ elif menu == "Prediction":
 
     model_path = os.path.join(BASE_DIR, "..", "outputs", "best_model.pkl")
     encoders_path = os.path.join(BASE_DIR, "..", "outputs", "encoders.pkl")
+    scaler_path = os.path.join(BASE_DIR, "..", "outputs", "scaler.pkl")
     processed_path = os.path.join(BASE_DIR, "..", "Data", "heart_processed.csv")
 
-    if not os.path.exists(model_path) or not os.path.exists(encoders_path) or not os.path.exists(processed_path):
-        st.warning("Model, encoder, atau data preprocess belum tersedia. Jalankan preprocessing dan training terlebih dahulu.")
+    if not os.path.exists(model_path) or not os.path.exists(encoders_path) or not os.path.exists(scaler_path) or not os.path.exists(processed_path):
+        st.warning("Model, encoder, scaler, atau data preprocess belum tersedia. Jalankan preprocessing dan training terlebih dahulu.")
     else:
         model = joblib.load(model_path)
         encoders = joblib.load(encoders_path)
+        scaler = joblib.load(scaler_path)
         train_columns = pd.read_csv(processed_path).drop(columns=["HeartDisease"]).columns.tolist()
 
         col1, col2 = st.columns(2)
@@ -495,7 +497,39 @@ elif menu == "Prediction":
             restingecg = st.selectbox("Resting ECG Result", ["Normal", "ST", "LVH"])
             slope = st.selectbox("ST Slope Type", ["Up", "Flat", "Down"])
 
+        with st.expander("ℹ️ Clinical Measurement Definitions"):
+            st.markdown("""
+                ### **Understanding the Input Parameters**
+                
+                * **Age:** Your current age in years. Risk factors typically increase as you get older.
+                * **Resting BP (Blood Pressure):** Your blood pressure measured in **mm Hg** while you are resting. High blood pressure (Hypertension) can strain your heart and arteries.
+                * **Cholesterol:** Level of serum cholesterol in **mg/dl**. High levels can lead to a buildup of plaques in your arteries (atherosclerosis).
+                * **Fasting Blood Sugar:** Set to **1** if your blood sugar is **> 120 mg/dl** after fasting, and **0** otherwise. High sugar levels can damage blood vessels over time.
+                * **Max HR (Heart Rate):** The highest heart rate you can achieve during intense exercise. Generally, a higher Max HR relative to your age suggests better cardiovascular fitness.
+                * **Oldpeak:** Measures the **ST depression** on your ECG induced by exercise relative to rest. It is a critical indicator of how your heart handles stress; higher values often suggest a lack of oxygen to the heart.
+                
+                ---
+                
+                ### **Categorical Indicators**
+                
+                * **Chest Pain Type:**
+                    * **TA (Typical Angina):** Classic chest pain caused by heart stress.
+                    * **ATA (Atypical Angina):** Chest pain that doesn't follow the typical pattern.
+                    * **NAP (Non-Anginal Pain):** Pain that is likely not heart-related.
+                    * **ASY (Asymptomatic):** No pain felt, but can be a "silent" indicator of heart issues in medical datasets.
+                * **Resting ECG:** * **Normal:** No electrical issues.
+                    * **ST:** Abnormalities in the ST-T wave.
+                    * **LVH:** Signs of Left Ventricular Hypertrophy (thickening of the heart's walls).
+                * **Exercise Angina:** Does chest pain occur specifically during physical activity? (**Yes/No**).
+                * **ST Slope:** The slope of the ST segment during peak exercise:
+                    * **Up:** Usually healthy.
+                    * **Flat:** May indicate moderate risk.
+                    * **Down:** Strongly associated with coronary artery disease.
+            """)
+
         st.markdown("---")
+
+
 
         if st.button("Predict Results"):
             # --- DATA PROCESSING LOGIC (Tetap sama dengan milikmu) ---
@@ -517,6 +551,10 @@ elif menu == "Prediction":
                 # One-hot encoding untuk fitur multi-kategori
                 sample = pd.get_dummies(sample, columns=['ChestPainType', 'RestingECG', 'ST_Slope'], drop_first=True)
 
+                # Scale numeric features sama seperti preprocessing
+                numeric_cols = ['Age', 'RestingBP', 'Cholesterol', 'MaxHR', 'Oldpeak']
+                sample[numeric_cols] = scaler.transform(sample[numeric_cols])
+
                 # Pastikan kolom sama dengan feature training
                 sample = sample.reindex(columns=train_columns, fill_value=0)
 
@@ -527,7 +565,10 @@ elif menu == "Prediction":
                 # --- HASIL PREDIKSI (UI Baru) ---
                 st.subheader("Analysis Result")
                 
-                if pred == 1:
+                threshold = 0.6
+                pred_custom = 1 if prob > threshold else 0
+
+                if pred_custom == 1:
                     st.error(f"### Prediction: Heart Disease Detected")
                 else:
                     st.success(f"### Prediction: Healthy / No Disease")
@@ -536,8 +577,12 @@ elif menu == "Prediction":
                 st.write(f"**Risk Probability: {prob:.2f}**")
                 st.progress(prob)
                 
-                if prob > 0.7:
-                    st.warning("High risk detected. Consult with a doctor immediately.")
+                if prob > 0.8:
+                    st.warning("🚨 **High Risk:** It is highly recommended to consult a cardiac specialist immediately.")
+                elif prob > threshold:
+                    st.warning("⚠️ **Moderate Risk:** Risk indicators detected. Consider improving your lifestyle and consulting a healthcare provider.")
+                else:
+                    st.info("✅ **Low Risk:** Your results are within a healthy range. Maintain a balanced diet and regular exercise.")
                 
             except Exception as e:
                 st.error(f"Error during prediction: {e}")
