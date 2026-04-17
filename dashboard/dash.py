@@ -420,6 +420,11 @@ elif menu == "Model Evaluation":
     st.subheader("Confusion Matrix")
     st.image(os.path.join(BASE_DIR, "..", "outputs", "confusion_matrices.png"), caption="Confusion Matrices")
 
+    st.write("**Summary**")
+    st.write("Our model demonstrates high diagnostic accuracy with an AUC of 0.92. The Confusion Matrix shows that the model is particularly strong at identifying positive cases (85 True Positives), ensuring that the majority of high-risk patients are correctly flagged for medical review.")
+
+    st.divider()
+
     st.subheader("Model Performance Summary")
 
     # Membuat 4 kolom untuk metrik utama
