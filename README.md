@@ -1,6 +1,9 @@
 # heart-disease-prediction
 Heart Disease Prediction project — a machine learning workflow for data preprocessing, model training, evaluation, and interactive dashboard deployment. Built for learning and experimentation in data science and machine learning.
 
+**Link To Dashboard**: 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://nfp-05-heart-disease-prediction-dashboarddash-7u1akx.streamlit.app/)
+
 ## 📂 Project Structure
 
 ```text
