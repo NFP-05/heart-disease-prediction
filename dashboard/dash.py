@@ -560,7 +560,7 @@ elif menu == "Prediction":
                 sample['ExerciseAngina'] = encoders['label_encoders']['ExerciseAngina'].transform(sample['ExerciseAngina'])
 
                 # One-hot encoding untuk fitur multi-kategori
-                sample = pd.get_dummies(sample, columns=['ChestPainType', 'RestingECG', 'ST_Slope'], drop_first=True)
+                sample = pd.get_dummies(sample, columns=['ChestPainType', 'RestingECG', 'ST_Slope'], drop_first=False)
 
                 # Scale numeric features sama seperti preprocessing
                 numeric_cols = ['Age', 'RestingBP', 'Cholesterol', 'Oldpeak', 'HR_Ratio']
