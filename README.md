@@ -18,20 +18,21 @@ Heart-Disease-Prediction/
 │   └── modeling.py
 ├── dashboard/             # Streamlit dashboard for prediction
 │   └── dash.py
-├── outputs/               # Model and evaluation results
+├── outputs/               # Model and evaluation results and preprocessing artifacts
 │   ├── best_model.pkl
-│   ├── best_model_predictions.pkl
+│   ├── best_model_predictions.csv
 │   ├── encoders.pkl
-│   ├── metrics_comparison.png
 │   ├── confusion_matrices.png
-│   ├── feature_importance.png
 │   ├── gridsearch_info.pkl
+│   ├── hr_ratio_correlation.png
 │   ├── model_results.csv
+│   ├── original_correlation.png
 │   ├── roc_curves.png
 │   ├── scaler.pkl
-│   └── train_columns.pkl
-│   requirements.txt
-│   .gitignore
+│   ├── train_columns.pkl
+│   └── feature_importance.png
+├── requirements.txt
+├── .gitignore
 └── README.md
 ```
 
@@ -39,9 +40,10 @@ Heart-Disease-Prediction/
 
 ## 🚀 Features
 
-- **Data Preprocessing**: Imputations, encoding categorical features, scaling numeric features.
-- **Model Training**: Random Forest.
-- **Visualization**: Confusion matrices, ROC curves, metrics comparisons.
+- **Data Preprocessing**: Imputations, feature engineering, encoding categorical features, scaling numeric features.
+- **Feature Engineering**: Create `HR_Ratio` from `MaxHR` and `Age`, then compare feature correlations before and after engineering.
+- **Model Training**: Random Forest with GridSearchCV and hold-out test evaluation.
+- **Visualization**: Correlation plots, confusion matrices, ROC curves, and model metrics.
 - **Dashboard**: Interactive Streamlit app for patient risk prediction.
 
 ---
@@ -56,11 +58,12 @@ Heart-Disease-Prediction/
 
 ## 📊 Workflow
 
-1. **Checking Dataset Quality**: Missing Value, Duplicate and Zero
-2. **Preprocessing**: Imputations, encode categorical variables.
-3. **Modeling**: Train&Validation(CV)/test split, tuning models, evaluate performance.
-4. **Evaluation**: Generate metrics, confusion matrices, ROC curves.
-5. **Deployment**: Save best model (`best_model.pkl`) and integrate with Streamlit dashboard.
+1. **Checking Dataset Quality**: Inspect missing values, duplicate rows, and zero-value entries.
+2. **Feature Engineering**: Create `HR_Ratio` and inspect correlation before and after creating the new feature.
+3. **Preprocessing**: Impute missing values, encode categorical variables, scale numeric features, and save preprocessing artifacts.
+4. **Modeling**: Train a Random Forest model, tune hyperparameters with GridSearchCV, and evaluate on a held-out test set.
+5. **Evaluation**: Generate metrics, confusion matrices, ROC curves, and save results.
+6. **Deployment**: Save the best model and artifacts, then integrate with Streamlit dashboard for prediction.
 
 ---
 

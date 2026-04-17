@@ -1,6 +1,9 @@
 # Load Libraries
+import os
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 from scipy import stats
 from scipy.stats import ttest_ind, chi2_contingency
 from sklearn.preprocessing import LabelEncoder, StandardScaler
@@ -12,16 +15,16 @@ print(df.head())
 
 # Data Structure
 print("\n" + "="*50)
-print("STRUKTUR DATA DAN TIPE-TIPE DATA")
+print("Data Structure and Feat. Type")
 print("="*50)
 print(f"\nDimension dataset: {df.shape}")
-print("\nInfo Struktur Data:")
+print("\nData Structure:")
 print(df.info())
-print("\nTipe data per kolom:")
+print("\nFeature Type:")
 print(df.dtypes)
-print("\nDeskripsi statistik:")
+print("\nStatistics Desc.:")
 print(df.describe())
-print("\nUnique values per fitur:")
+print("\nUnique values per feat.:")
 for col in df.columns:
     print(f"  {col}: {df[col].nunique()} unique values")
 
@@ -33,6 +36,44 @@ print("Missing values per column:\n", df.isna().sum())
 num_cols = df.select_dtypes(include="number").columns
 table_zeros = (df[num_cols] == 0).sum()
 print("\nZero counts in numeric columns:\n", table_zeros)
+
+# Correlation plot for feature engineering before preprocessing
+os.makedirs('outputs', exist_ok=True)
+print(f"\nCreating correlation plot for original numeric features...")
+correlation_cols = ['Age', 'RestingBP', 'Cholesterol', 'MaxHR', 'Oldpeak', 'HeartDisease']
+corr_matrix = df[correlation_cols].corr()
+fig, ax = plt.subplots(figsize=(10, 8))
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt='.2f', ax=ax)
+ax.set_title('Correlation Matrix of Original Features')
+fig.tight_layout()
+fig.savefig('outputs/original_correlation.png')
+plt.close(fig)
+print("Saved: outputs/original_correlation.png")
+
+# Feature Engineering: HR Ratio after correlation
+print(f"\n" + "="*50)
+print("FEATURE ENGINEERING: HR_Ratio")
+print("="*50)
+df['HR_Ratio'] = df['MaxHR'] / (220 - df['Age'])
+print(f"Created feature HR_Ratio. Sample values:")
+print(df[['Age', 'MaxHR', 'HR_Ratio']].head())
+
+# Remove original MaxHR feature since it's now represented in HR_Ratio
+df = df.drop(columns=['MaxHR'])
+print(f"\nRemoved original MaxHR feature. New shape: {df.shape}")
+print(f"Remaining numeric columns: {df.select_dtypes(include='number').columns.tolist()}")
+
+# Correlation plot for feature engineering after HR_Ratio creation
+print(f"\nCreating correlation plot including HR_Ratio...")
+correlation_cols = ['Age', 'RestingBP', 'Cholesterol', 'Oldpeak', 'HR_Ratio', 'HeartDisease']
+corr_matrix = df[correlation_cols].corr()
+fig, ax = plt.subplots(figsize=(10, 8))
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt='.2f', ax=ax)
+ax.set_title('Correlation Matrix Including HR_Ratio')
+fig.tight_layout()
+fig.savefig('outputs/hr_ratio_correlation.png')
+plt.close(fig)
+print("Saved: outputs/hr_ratio_correlation.png")
 
 # Imputation
 print(f"\n" + "="*50)
@@ -128,7 +169,7 @@ print(ml_df.dtypes)
 print(f"\n" + "="*50)
 print("SCALING NUMERIC FEATURES")
 print("="*50)
-scale_cols = ['Age', 'RestingBP', 'Cholesterol', 'MaxHR', 'Oldpeak']
+scale_cols = ['Age', 'RestingBP', 'Cholesterol', 'Oldpeak', 'HR_Ratio']
 scaler = StandardScaler()
 ml_df[scale_cols] = scaler.fit_transform(ml_df[scale_cols])
 print(f"Scaled columns: {scale_cols}")

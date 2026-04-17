@@ -278,15 +278,15 @@ elif menu == "EDA":
 
         st.markdown("---")
 
-        st.subheader("Maximum Heart Rate Achieved")
+        st.subheader("Heart Rate Ratio Distribution")
         fig, ax = plt.subplots(figsize=(10, 5))
-        ax.hist(df["MaxHR"], bins=20, color="lightyellow", edgecolor="black")
-        ax.set_xlabel("Maximum Heart Rate (bpm)")
+        ax.hist(df["HR_Ratio"], bins=20, color="lightyellow", edgecolor="black")
+        ax.set_xlabel("Heart Rate Ratio")
         ax.set_ylabel("Frequency")
         st.pyplot(fig)
 
-        st.write("Most patients reach a maximum heart rate between 110 and 160 beats per minute, with the peak around 120 bpm. " \
-        "This shows the typical range of exertion capacity in the dataset. In everyday terms, most people’s hearts peak at a level consistent with moderate to vigorous activity.")
+        st.write("The heart rate ratio represents MaxHR normalized by age (MaxHR / (220 - Age)). This shows the relative exercise capacity adjusted for age. " \
+        "Values closer to 1.0 indicate better cardiovascular fitness relative to age expectations.")
 
         st.markdown("---")
 
@@ -401,8 +401,8 @@ elif menu == "EDA":
 
         st.markdown(
         "The heatmap reveals how different health measurements relate to each other and to heart disease. "
-        "For example, maximum heart rate (MaxHR) has a negative correlation with heart disease, "
-        "<span class='highlight-blue'>Patients with lower maximum heart rates are more likely to have the condition.</span> "
+        "For example, heart rate ratio (HR_Ratio) has a negative correlation with heart disease, "
+        "<span class='highlight-blue'>Lower heart rate ratios are more likely to be associated with heart disease.</span> "
         "On the other hand, Oldpeak shows a positive correlation, indicating that higher ECG changes after exercise are linked to greater risk. "
         "Other features like age, resting blood pressure, and cholesterol show weaker relationships. "
         "In simple terms, this chart helps us see which factors matter most: <span class='highlight-red'>heart disease is more closely tied to exercise‑related signals than to cholesterol or blood pressure alone.</span>",
@@ -510,7 +510,7 @@ elif menu == "Prediction":
                 * **Resting BP (Blood Pressure):** Your blood pressure measured in **mm Hg** while you are resting. High blood pressure (Hypertension) can strain your heart and arteries.
                 * **Cholesterol:** Level of serum cholesterol in **mg/dl**. High levels can lead to a buildup of plaques in your arteries (atherosclerosis).
                 * **Fasting Blood Sugar:** Set to **1** if your blood sugar is **> 120 mg/dl** after fasting, and **0** otherwise. High sugar levels can damage blood vessels over time.
-                * **Max HR (Heart Rate):** The highest heart rate you can achieve during intense exercise. Generally, a higher Max HR relative to your age suggests better cardiovascular fitness.
+                * **Max HR (Heart Rate):** The highest heart rate you can achieve during intense exercise. This is used to calculate your heart rate ratio, which measures cardiovascular fitness relative to your age.
                 * **Oldpeak:** Measures the **ST depression** on your ECG induced by exercise relative to rest. It is a critical indicator of how your heart handles stress; higher values often suggest a lack of oxygen to the heart.
                 
                 ---
@@ -549,6 +549,12 @@ elif menu == "Prediction":
                     'ExerciseAngina', 'Oldpeak', 'ChestPainType', 'RestingECG', 'ST_Slope'
                 ])
 
+                # Calculate HR_Ratio feature (same as preprocessing)
+                sample['HR_Ratio'] = sample['MaxHR'] / (220 - sample['Age'])
+
+                # Remove MaxHR since model expects HR_Ratio
+                sample = sample.drop(columns=['MaxHR'])
+
                 # Label encoding untuk fitur binary
                 sample['Sex'] = encoders['label_encoders']['Sex'].transform(sample['Sex'])
                 sample['ExerciseAngina'] = encoders['label_encoders']['ExerciseAngina'].transform(sample['ExerciseAngina'])
@@ -557,7 +563,7 @@ elif menu == "Prediction":
                 sample = pd.get_dummies(sample, columns=['ChestPainType', 'RestingECG', 'ST_Slope'], drop_first=True)
 
                 # Scale numeric features sama seperti preprocessing
-                numeric_cols = ['Age', 'RestingBP', 'Cholesterol', 'MaxHR', 'Oldpeak']
+                numeric_cols = ['Age', 'RestingBP', 'Cholesterol', 'Oldpeak', 'HR_Ratio']
                 sample[numeric_cols] = scaler.transform(sample[numeric_cols])
 
                 # Pastikan kolom sama dengan feature training
