@@ -1,9 +1,17 @@
-# heart-disease-prediction
+# Heart Disease Prediction using Machine Learning
 
 Heart Disease Prediction project — a machine learning workflow for data preprocessing, model training, evaluation, and interactive dashboard deployment. Built for learning and experimentation in data science and machine learning.
 
 **Link To Dashboard**:
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://nfp-05-heart-disease-prediction-dashboarddash-7u1akx.streamlit.app/)
+
+## Dataset Information
+
+The Dataset used in this project is sourced from Kaggle:
+
+- **Dataset Link**: [https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction](https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction)
+- **Source**: Created by fedesoriano, combining 5 heart datasets (Cleveland, Hungary, Switzerland, Long Beach, and Stalog).
+- **Data Size**: 918 observations with 11 clinical features.
 
 ## 📂 Project Structure
 
@@ -31,6 +39,8 @@ Heart-Disease-Prediction/
 │   ├── scaler.pkl
 │   ├── train_columns.pkl
 │   └── feature_importance.png
+├── notebooks/ 
+│   └── notebook.ipynb 
 ├── requirements.txt
 ├── .gitignore
 └── README.md
@@ -48,7 +58,7 @@ Heart-Disease-Prediction/
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Tech Tools
 
 - **Languages:** Python
 - **Libraries:** Pandas, NumPy, Scikit-learn, Matplotlib, Seaborn, Streamlit, Joblib
@@ -67,12 +77,146 @@ Heart-Disease-Prediction/
 
 ---
 
+## 📈 Model Performance
+
+After feature engineering and hyperparameter tuning, the Random Forest model achieved:
+
+- **Test Accuracy**: 86.41%
+- **ROC-AUC**: 0.9220
+- **Recall**: 90.20%
+- **Precision**: 80.85%
+- **F1-Score**: 0.8537
+- **Best Parameters**: `{'max_depth': 10, 'min_samples_split': 25, 'n_estimators': 90}`
+
+---
+
+## 📊 Detailed Evaluation Results
+
+### Metrics Comparison (CV Train vs Test)
+
+| Metric        | CV (Train) | Test (Blind) |
+| ------------- | ---------- | ------------ |
+| **Accuracy**  | 0.9197     | 0.8641       |
+| **Precision** | 0.8788     | 0.8085       |
+| **Recall**    | 0.9284     | 0.9020       |
+| **F1-Score**  | 0.9034     | 0.8537       |
+| **ROC-AUC**   | 0.9633     | 0.9220       |
+| **Kappa**     | 0.8369     | 0.7247       |
+| **G-Mean**    | 0.9108     | 0.8890       |
+
+### 📉 ROC Curves
+
+The ROC curves demonstrate excellent model discrimination ability across both datasets:
+
+![ROC Curves](outputs/roc_curves.png)
+
+**Interpretation:**
+
+- **CV Data (Train) ROC-AUC: 0.9633** - Excellent discrimination between classes
+- **Test Data (Blind) ROC-AUC: 0.9220** - Strong generalization to unseen data
+- The model achieved strong discrimination with ROC-AUC of 0.922 on test data.
+- Both curves remain close to each other, suggesting minimal overfitting
+
+### 🔲 Confusion Matrices
+
+The confusion matrices show classification performance across training and test sets:
+
+![Confusion Matrices](outputs/confusion_matrices.png)
+
+**CV Data (Train) Analysis:**
+
+- True Negatives: 330 (Correctly identified no disease)
+- False Positives: 22 (Incorrectly predicted disease)
+- False Negatives: 32 (Missed disease cases)
+- True Positives: 350 (Correctly identified disease)
+
+**Test Data (Blind) Analysis:**
+
+- True Negatives: 78 (Correctly identified no disease)
+- False Positives: 20 (Incorrectly predicted disease)
+- False Negatives: 9 (Missed disease cases)
+- True Positives: 77 (Correctly identified disease)
+
+**Key Insight:** High recall (90.20%) on test set means the model catches 90% of actual heart disease cases, which is critical in a medical context where missing disease is more dangerous than false alarms.
+
+### 📊 Metrics Comparison Visualization
+
+![Metrics Comparison](outputs/metrics_comparison.png)
+
+**Bar Chart Interpretation:**
+
+- The close alignment of CV and Test metrics indicates good generalization with minimal overfitting
+- Recall is the highest metric, reflecting the model's strength in identifying positive cases
+- Precision remains solid at 0.81, showing acceptable false positive rate
+- F1-Score balances precision and recall effectively at 0.8537
+
+### 🎯 Feature Importance Analysis
+
+![Feature Importance](outputs/feature_importance.png)
+
+**Top 15 Most Important Features:**
+The feature importance plot shows which clinical indicators are most influential in predicting heart disease. Key features include:
+
+- **Heart-related metrics**: ST depression, exercise-induced angina
+- **Age-related indicators**: Maximum heart rate, HR_Ratio (engineered feature)
+- **Cardiovascular markers**: Cholesterol, blood pressure indicators
+- **Activity measures**: Exercise capacity and stress response
+
+The engineered feature **HR_Ratio** (MaxHR / Age) appears in the importance rankings, validating the feature engineering approach.
+
+---
+
+## 💡 Key Insights
+
+1. **High Recall Performance**: The model achieves 90.20% recall on test data, successfully identifying 9 out of 10 heart disease cases. This is crucial for medical applications where false negatives (missed disease) are more harmful than false positives.
+
+2. **Excellent Discrimination**: ROC-AUC score of 0.9220 indicates the model has excellent ability to distinguish between disease and non-disease cases across various probability thresholds.
+
+3. **Good Generalization**: The small gap between CV (96.33%) and test (92.20%) ROC-AUC scores suggests the model generalizes well to unseen data with minimal overfitting.
+
+4. **Balanced Performance**: The combination of high recall (90.20%) and reasonable precision (80.85%) provides balanced protection—catching most cases while keeping false alarms manageable.
+
+5. **Clinical Relevance**: The most important features align with medical understanding of heart disease risk factors (exercise capacity, ST depression, angina symptoms).
+
+6. **Feature Engineering Value**: The engineered HR_Ratio feature contributes to model importance, demonstrating the value of domain-informed feature engineering.
+
+---
+
+## ✅ Conclusion
+
+The Random Forest classifier demonstrates **excellent performance** for heart disease prediction with:
+
+### ✨ Strengths:
+
+- **High Sensitivity (90.20% Recall)**: Reliably identifies disease-positive cases
+- **Stable Model**: Minimal gap between CV and test performance (3% AUC difference)
+- **Clinical Appropriateness**: Prioritizes recall over precision, minimizing missed diagnoses
+- **Interpretability**: Feature importance provides insights into predictive factors
+
+### ⚠️ Limitations:
+
+- **20 False Positives**: 20 patients without disease flagged as positive (20% error rate)
+- **9 False Negatives**: 9 disease cases missed (1% error rate on test set)
+- **Precision-Recall Trade-off**: Lower precision (80.85%) due to conservative threshold favoring recall
+
+### 📚 Clinical Context:
+
+The model successfully identifies clinical patterns in:
+
+- **Exercise Response**: Maximum heart rate and exercise-induced symptoms
+- **Cardiac Stress Indicators**: ST depression values
+- **Patient Demographics**: Age and gender-related risk profiles
+- **Vital Signs**: Blood pressure, cholesterol metrics
+
+---
+
 ## 🎯 Goals
 
-- Learn end-to-end ML workflow with a real dataset.
-- Practice reproducible project structure.
+- This project demonstrates an end-to-end machine learning pipeline for heart disease risk prediction, from preprocessing to deployment.
 - Build an interactive dashboard for predictions.
 
 ---
 
-⭐️ This project is for **educational purposes** and part of my journey in Data Science & Machine Learning. Feedback and suggestions are welcome!
+⭐️ This project is for **educational purposes** and part of my journey in Data Science & Machine Learning.
+
+> **⚠️ Medical Disclaimer**: This application is for **educational purposes only**. The predictions generated are based on statistical patterns and should not be used as a substitute for professional medical advice, diagnosis, or treatment. Always consult with a qualified healthcare provider for any medical concerns.

@@ -16,7 +16,6 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # Load Processed Data
-print("Loading processed data...")
 df = pd.read_csv('Data/heart_processed.csv')
 print(f"Data shape: {df.shape}")
 
