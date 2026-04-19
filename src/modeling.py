@@ -192,7 +192,7 @@ axes[1].set_ylabel('Actual')
 plt.tight_layout()
 plt.savefig('outputs/confusion_matrices.png', dpi=300, bbox_inches='tight')
 plt.close()
-print("✓ Saved: outputs/confusion_matrices.png")
+print("[OK] Saved: outputs/confusion_matrices.png")
 
 # 2. ROC Curves (CV and Test)
 fig, ax = plt.subplots(figsize=(10, 8))
@@ -216,7 +216,7 @@ ax.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.savefig('outputs/roc_curves.png', dpi=300, bbox_inches='tight')
 plt.close()
-print("✓ Saved: outputs/roc_curves.png")
+print("[OK] Saved: outputs/roc_curves.png")
 
 # 3. Metrics Comparison Bar Plot
 fig, axes = plt.subplots(2, 2, figsize=(14, 10))
@@ -252,7 +252,7 @@ for idx, metric_name in enumerate(metrics_names):
 plt.tight_layout()
 plt.savefig('outputs/metrics_comparison.png', dpi=300, bbox_inches='tight')
 plt.close()
-print("✓ Saved: outputs/metrics_comparison.png")
+print("[OK] Saved: outputs/metrics_comparison.png")
 
 # 4. Feature Importance (Top 15)
 fig, ax = plt.subplots(figsize=(11, 6))
@@ -271,7 +271,7 @@ ax.grid(True, axis='x', alpha=0.3)
 plt.tight_layout()
 plt.savefig('outputs/feature_importance.png', dpi=300, bbox_inches='tight')
 plt.close()
-print("✓ Saved: outputs/feature_importance.png")
+print("[OK] Saved: outputs/feature_importance.png")
 
 # SAVE RESULTS AND MODEL
 print("\n" + "="*50)
@@ -302,7 +302,7 @@ metrics_report = {
 
 metrics_df = pd.DataFrame(metrics_report).T
 metrics_df.to_csv('outputs/model_results.csv')
-print("✓ Saved: outputs/model_results.csv")
+print("[OK] Saved: outputs/model_results.csv")
 
 # Save predictions
 predictions_df = pd.DataFrame({
@@ -312,11 +312,11 @@ predictions_df = pd.DataFrame({
     'Probability_Class_1': y_pred_proba_test
 })
 predictions_df.to_csv('outputs/best_model_predictions.csv', index=False)
-print("✓ Saved: outputs/best_model_predictions.csv")
+print("[OK] Saved: outputs/best_model_predictions.csv")
 
 # Save best RandomForest model
 joblib.dump(best_rf_model, 'outputs/best_model.pkl')
-print("✓ Saved: outputs/best_model.pkl")
+print("[OK] Saved: outputs/best_model.pkl")
 
 # Save best parameters and GridSearch info
 gridsearch_info = {
@@ -325,7 +325,7 @@ gridsearch_info = {
     'cv_results': grid_search.cv_results_
 }
 joblib.dump(gridsearch_info, 'outputs/gridsearch_info.pkl')
-print("✓ Saved: outputs/gridsearch_info.pkl")
+print("[OK] Saved: outputs/gridsearch_info.pkl")
 
 print("\n" + "="*50)
 print("MODELING COMPLETE!")

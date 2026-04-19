@@ -84,8 +84,8 @@ After feature engineering and hyperparameter tuning, the Random Forest model ach
 - **Test Accuracy**: 86.41%
 - **ROC-AUC**: 0.9220
 - **Recall**: 90.20%
-- **Precision**: 80.85%
-- **F1-Score**: 0.8537
+- **Precision**: 85.98%
+- **F1-Score**: 0.8804
 - **Best Parameters**: `{'max_depth': 10, 'min_samples_split': 25, 'n_estimators': 90}`
 
 ---
@@ -96,13 +96,13 @@ After feature engineering and hyperparameter tuning, the Random Forest model ach
 
 | Metric        | CV (Train) | Test (Blind) |
 | ------------- | ---------- | ------------ |
-| **Accuracy**  | 0.9197     | 0.8641       |
-| **Precision** | 0.8788     | 0.8085       |
-| **Recall**    | 0.9284     | 0.9020       |
-| **F1-Score**  | 0.9034     | 0.8537       |
-| **ROC-AUC**   | 0.9633     | 0.9220       |
-| **Kappa**     | 0.8369     | 0.7247       |
-| **G-Mean**    | 0.9108     | 0.8890       |
+| **Accuracy**  | 0.8842     | 0.8641       |
+| **Precision** | 0.8707     | 0.8598       |
+| **Recall**    | 0.9286     | 0.9020       |
+| **F1-Score**  | 0.8987     | 0.8804       |
+| **ROC-AUC**   | 0.9676     | 0.9220       |
+| **Kappa**     | 0.7639     | 0.7234       |
+| **G-Mean**    | 0.8775     | 0.8585       |
 
 ### 📉 ROC Curves
 
@@ -112,7 +112,7 @@ The ROC curves demonstrate excellent model discrimination ability across both da
 
 **Interpretation:**
 
-- **CV Data (Train) ROC-AUC: 0.9633** - Excellent discrimination between classes
+- **CV Data (Train) ROC-AUC: 0.9676** - Excellent discrimination between classes
 - **Test Data (Blind) ROC-AUC: 0.9220** - Strong generalization to unseen data
 - The model achieved strong discrimination with ROC-AUC of 0.922 on test data.
 - Both curves remain close to each other, suggesting minimal overfitting
@@ -125,17 +125,17 @@ The confusion matrices show classification performance across training and test 
 
 **CV Data (Train) Analysis:**
 
-- True Negatives: 330 (Correctly identified no disease)
-- False Positives: 22 (Incorrectly predicted disease)
-- False Negatives: 32 (Missed disease cases)
-- True Positives: 350 (Correctly identified disease)
+- True Negatives: 272 (Correctly identified no disease)
+- False Positives: 56 (Incorrectly predicted disease)
+- False Negatives: 29 (Missed disease cases)
+- True Positives: 377 (Correctly identified disease)
 
 **Test Data (Blind) Analysis:**
 
-- True Negatives: 78 (Correctly identified no disease)
-- False Positives: 20 (Incorrectly predicted disease)
-- False Negatives: 9 (Missed disease cases)
-- True Positives: 77 (Correctly identified disease)
+- True Negatives: 67 (Correctly identified no disease)
+- False Positives: 15 (Incorrectly predicted disease)
+- False Negatives: 10 (Missed disease cases)
+- True Positives: 92 (Correctly identified disease)
 
 **Key Insight:** High recall (90.20%) on test set means the model catches 90% of actual heart disease cases, which is critical in a medical context where missing disease is more dangerous than false alarms.
 
@@ -147,8 +147,7 @@ The confusion matrices show classification performance across training and test 
 
 - The close alignment of CV and Test metrics indicates good generalization with minimal overfitting
 - Recall is the highest metric, reflecting the model's strength in identifying positive cases
-- Precision remains solid at 0.81, showing acceptable false positive rate
-- F1-Score balances precision and recall effectively at 0.8537
+- F1-Score balances precision and recall effectively at 0.8987 for Train Set and 0.8804 for Test Set
 
 ### 🎯 Feature Importance Analysis
 
@@ -157,7 +156,7 @@ The confusion matrices show classification performance across training and test 
 **Top 15 Most Important Features:**
 The feature importance plot shows which clinical indicators are most influential in predicting heart disease. Key features include:
 
-- **Heart-related metrics**: ST depression, exercise-induced angina
+- **Heart-related metrics**: ST depression, Type of Chest Pain, and exercise-induced angina
 - **Age-related indicators**: Maximum heart rate, HR_Ratio (engineered feature)
 - **Cardiovascular markers**: Cholesterol, blood pressure indicators
 - **Activity measures**: Exercise capacity and stress response
@@ -168,13 +167,13 @@ The engineered feature **HR_Ratio** (MaxHR / Age) appears in the importance rank
 
 ## 💡 Key Insights
 
-1. **High Recall Performance**: The model achieves 90.20% recall on test data, successfully identifying 9 out of 10 heart disease cases. This is crucial for medical applications where false negatives (missed disease) are more harmful than false positives.
+1. **High Recall Performance**: The model achieves 90.20% recall on test data. This is crucial for medical applications where false negatives (missed disease) are more harmful than false positives.
 
 2. **Excellent Discrimination**: ROC-AUC score of 0.9220 indicates the model has excellent ability to distinguish between disease and non-disease cases across various probability thresholds.
 
-3. **Good Generalization**: The small gap between CV (96.33%) and test (92.20%) ROC-AUC scores suggests the model generalizes well to unseen data with minimal overfitting.
+3. **Good Generalization**: The small gap between CV (96.76%) and test (92.20%) ROC-AUC scores suggests the model generalizes well to unseen data with minimal overfitting.
 
-4. **Balanced Performance**: The combination of high recall (90.20%) and reasonable precision (80.85%) provides balanced protection—catching most cases while keeping false alarms manageable.
+4. **Balanced Performance**: The combination of high recall (90.20%) and reasonable precision (85.98%) provides balanced protection—catching most cases while keeping false alarms manageable.
 
 5. **Clinical Relevance**: The most important features align with medical understanding of heart disease risk factors (exercise capacity, ST depression, angina symptoms).
 
@@ -189,15 +188,15 @@ The Random Forest classifier demonstrates **excellent performance** for heart di
 ### ✨ Strengths:
 
 - **High Sensitivity (90.20% Recall)**: Reliably identifies disease-positive cases
-- **Stable Model**: Minimal gap between CV and test performance (3% AUC difference)
+- **Stable Model**: Minimal gap between CV and test performance (About 3-4% AUC difference)
 - **Clinical Appropriateness**: Prioritizes recall over precision, minimizing missed diagnoses
 - **Interpretability**: Feature importance provides insights into predictive factors
 
 ### ⚠️ Limitations:
 
-- **20 False Positives**: 20 patients without disease flagged as positive (20% error rate)
-- **9 False Negatives**: 9 disease cases missed (1% error rate on test set)
-- **Precision-Recall Trade-off**: Lower precision (80.85%) due to conservative threshold favoring recall
+- **15 False Positives**: 20 patients without disease flagged as positive (20% error rate)
+- **10 False Negatives**: 9 disease cases missed (1% error rate on test set)
+- **Precision-Recall Trade-off**: Lower precision (85.98%) due to conservative threshold favoring recall
 
 ### 📚 Clinical Context:
 
