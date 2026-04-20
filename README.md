@@ -26,7 +26,7 @@ Heart-Disease-Prediction/
 │   └── modeling.py
 ├── dashboard/             # Streamlit dashboard for prediction
 │   └── dash.py
-├── outputs/               # Model and evaluation results and preprocessing artifacts
+├── outputs/               # Model and evaluation results and preprocessing 
 │   ├── best_model.pkl
 │   ├── best_model_predictions.csv
 │   ├── encoders.pkl
@@ -39,11 +39,11 @@ Heart-Disease-Prediction/
 │   ├── scaler.pkl
 │   ├── train_columns.pkl
 │   └── feature_importance.png
-├── notebooks/ 
-│   └── notebook.ipynb 
+├── notebooks/            # Workflow in the project
+│   └── project-walkthrough.ipynb 
 ├── requirements.txt
 ├── .gitignore
-└── README.md
+└── README.md            
 ```
 
 ---
@@ -194,8 +194,8 @@ The Random Forest classifier demonstrates **excellent performance** for heart di
 
 ### ⚠️ Limitations:
 
-- **15 False Positives**: 20 patients without disease flagged as positive (20% error rate)
-- **10 False Negatives**: 9 disease cases missed (1% error rate on test set)
+- **15 False Positives**: 15 patients without disease flagged as positive
+- **10 False Negatives**: 10 disease cases missed
 - **Precision-Recall Trade-off**: Lower precision (85.98%) due to conservative threshold favoring recall
 
 ### 📚 Clinical Context:
