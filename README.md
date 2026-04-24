@@ -175,9 +175,7 @@ The engineered feature **HR_Ratio** (MaxHR / Age) appears in the importance rank
 
 4. **Balanced Performance**: The combination of high recall (90.20%) and reasonable precision (85.98%) provides balanced protection—catching most cases while keeping false alarms manageable.
 
-5. **Clinical Relevance**: The most important features align with medical understanding of heart disease risk factors (exercise capacity, ST depression, angina symptoms).
-
-6. **Feature Engineering Value**: The engineered HR_Ratio feature contributes to model importance, demonstrating the value of domain-informed feature engineering.
+5. **Feature Engineering Value**: The engineered HR_Ratio feature contributes to model importance, demonstrating the value of domain-informed feature engineering.
 
 ---
 
@@ -197,15 +195,6 @@ The Random Forest classifier demonstrates **excellent performance** for heart di
 - **15 False Positives**: 15 patients without disease flagged as positive
 - **10 False Negatives**: 10 disease cases missed
 - **Precision-Recall Trade-off**: Lower precision (85.98%) due to conservative threshold favoring recall
-
-### 📚 Clinical Context:
-
-The model successfully identifies clinical patterns in:
-
-- **Exercise Response**: Maximum heart rate and exercise-induced symptoms
-- **Cardiac Stress Indicators**: ST depression values
-- **Patient Demographics**: Age and gender-related risk profiles
-- **Vital Signs**: Blood pressure, cholesterol metrics
 
 ---
 

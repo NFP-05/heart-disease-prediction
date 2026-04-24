@@ -476,7 +476,7 @@ elif menu == "Prediction":
     train_columns_path = os.path.join(BASE_DIR, "..", "outputs", "train_columns.pkl")
 
     if not os.path.exists(model_path) or not os.path.exists(encoders_path) or not os.path.exists(scaler_path) or not os.path.exists(train_columns_path):
-        st.warning("Model, encoder, scaler, atau train_columns belum tersedia. Jalankan preprocessing dan training terlebih dahulu.")
+        st.warning("Model, encoder, scaler, atau train_columns isnt available")
     else:
         model = joblib.load(model_path)
         encoders = joblib.load(encoders_path)
@@ -537,7 +537,6 @@ elif menu == "Prediction":
 
 
         if st.button("Predict Results"):
-            # --- DATA PROCESSING LOGIC (Tetap sama dengan milikmu) ---
             sex = "M" if sex_label == "Male" else "F"
             fastingbs = 1 if fastingbs_label == "Yes" else 0
 
