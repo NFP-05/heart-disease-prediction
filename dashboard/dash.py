@@ -114,18 +114,17 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# Judul dashboard
+# Title
 st.title("🫀 Heart Disease Prediction Dashboard")
 
 # Load dataset
 path_cleaned = os.path.join(BASE_DIR, "..", "Data", "heart_cleaned.csv")
 
-# 3. Baca filenya menggunakan path yang sudah fleksibel tadi
 df = pd.read_csv(path_cleaned)
 
 st.set_page_config(initial_sidebar_state="expanded", layout="wide")
 
-# Sidebar navigasi
+# Navigation
 menu = st.sidebar.selectbox("Navigation", ["Overview", "EDA", "Model Evaluation", "Prediction"])
 
 if menu == "Overview":
@@ -141,12 +140,11 @@ if menu == "Overview":
     df_display = df
     html_table = "<div class='table-container'><table><tr>"
     
-    # th
+    # Table Header
     for col in df_display.columns:
         html_table += f"<th>{col}</th>"
     html_table += "</tr>"
     
-    # td
     for idx, row in df_display.iterrows():
         html_table += "<tr>"
         for col in df_display.columns:
@@ -556,25 +554,23 @@ elif menu == "Prediction":
                 # Remove MaxHR since model expects HR_Ratio
                 sample = sample.drop(columns=['MaxHR'])
 
-                # Label encoding untuk fitur binary
+                # Label encoding 
                 sample['Sex'] = encoders['label_encoders']['Sex'].transform(sample['Sex'])
                 sample['ExerciseAngina'] = encoders['label_encoders']['ExerciseAngina'].transform(sample['ExerciseAngina'])
 
-                # One-hot encoding untuk fitur multi-kategori
+                # One-hot encoding 
                 sample = pd.get_dummies(sample, columns=['ChestPainType', 'RestingECG', 'ST_Slope'], drop_first=False)
 
-                # Scale numeric features sama seperti preprocessing
+                # Scale numeric features 
                 numeric_cols = ['Age', 'RestingBP', 'Cholesterol', 'Oldpeak', 'HR_Ratio']
                 sample[numeric_cols] = scaler.transform(sample[numeric_cols])
 
-                # Pastikan kolom sama dengan feature training
                 sample = sample.reindex(columns=train_columns, fill_value=0)
 
-                # Prediksi
+                # Prediction
                 pred = model.predict(sample)[0]
                 prob = model.predict_proba(sample)[0][1]
 
-                # --- HASIL PREDIKSI (UI Baru) ---
                 st.subheader("Analysis Result")
                 
                 threshold = 0.6
@@ -585,7 +581,6 @@ elif menu == "Prediction":
                 else:
                     st.success(f"### Prediction: Healthy / No Disease")
                 
-                # Menampilkan Probabilitas dengan Progress Bar
                 st.write(f"**Risk Probability: {prob:.2f}**")
                 st.progress(prob)
                 
