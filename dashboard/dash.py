@@ -534,8 +534,6 @@ elif menu == "Prediction":
 
         st.markdown("---")
 
-
-
         if st.button("Predict Results"):
             sex = "M" if sex_label == "Male" else "F"
             fastingbs = 1 if fastingbs_label == "Yes" else 0
@@ -567,8 +565,7 @@ elif menu == "Prediction":
 
                 sample = sample.reindex(columns=train_columns, fill_value=0)
 
-                # Prediction
-                pred = model.predict(sample)[0]
+                # Prediction                
                 prob = model.predict_proba(sample)[0][1]
 
                 st.subheader("Analysis Result")
