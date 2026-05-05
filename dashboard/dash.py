@@ -123,6 +123,8 @@ path_cleaned = os.path.join(BASE_DIR, "..", "Data", "heart_cleaned.csv")
 # 3. Baca filenya menggunakan path yang sudah fleksibel tadi
 df = pd.read_csv(path_cleaned)
 
+st.set_page_config(initial_sidebar_state="expanded", layout="wide")
+
 # Sidebar navigasi
 menu = st.sidebar.selectbox("Navigation", ["Overview", "EDA", "Model Evaluation", "Prediction"])
 
