@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import joblib
 import seaborn as sns
 import os
+from sklearn.metrics import roc_curve, auc
+import plotly.graph_objects as go
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -73,16 +75,6 @@ st.markdown("""
         text-align: center;
         box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
     }
-            
-    .cardn {
-        background-color: #F0F2F6;
-        padding: 20px;
-        border-radius: 10px;
-        text-align: center;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-        font-size: 16px;
-        font-weight: normal;
-    }
     
     .card-title {
         font-size : 20px;
@@ -93,6 +85,10 @@ st.markdown("""
         font-weight: bold;
         display: block;
         margin-top: 10px;
+    }
+            
+    .card-number2{
+        font-weight: bold;
     }
             
     /*Highlight for key insights*/
@@ -137,6 +133,7 @@ st.set_page_config(initial_sidebar_state="expanded", layout="wide")
 # Navigation
 menu = st.sidebar.selectbox("Navigation", ["Overview", "EDA", "Model Evaluation", "Prediction"])
 
+# Overview Page
 if menu == "Overview":
     st.header("Overview")
     st.markdown("---")
@@ -168,25 +165,35 @@ if menu == "Overview":
     
     st.markdown(html_table, unsafe_allow_html=True)
 
+    st.markdown("<br>", unsafe_allow_html=True)
+
     col1, col2 = st.columns(2)
-    col1.markdown('<div class="cardn">Number of Rows<span class="card-number">918</span></div>', unsafe_allow_html=True)
-    col2.markdown('<div class="cardn">Number of Columns<span class="card-number">12</span></div>', unsafe_allow_html=True)
+    col1.markdown('<div class="card"><span class="card-title">Number of Rows</span><span class="card-number">918</span></div>', unsafe_allow_html=True)
+    col2.markdown('<div class="card"><span class="card-title">Number of Columns</span><span class="card-number">12</span></div>', unsafe_allow_html=True)
     
     st.markdown("---")
     st.subheader("📌 Key Statistics")
 
     col1, col2, col3 = st.columns(3)
-    col1.markdown('<div class="card">📈 Average Age<br>54 years</div>', unsafe_allow_html=True)
-    col2.markdown('<div class="card">❤️ Disease Rate<br>55,34%</div>', unsafe_allow_html=True)
-    col3.markdown('<div class="card">👥 Total Patients<br>918</div>', unsafe_allow_html=True)
+    col1.markdown('<div class="card">📈 Average Age<br><span class="card-number2">54 years</span></div>', unsafe_allow_html=True)
+    col2.markdown('<div class="card">❤️ Disease Rate<br><span class="card-number2">55,34%</span></div>', unsafe_allow_html=True)
+    col3.markdown('<div class="card">👥 Total Patients<br><span class="card-number2">918</span></div>', unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    col1, col2 = st.columns(2)
+    col1.markdown("<div class='card'>♂️ Male Patients Total<br><span class='card-number2'>725</span></div>", unsafe_allow_html=True)
+    col2.markdown("<div class='card'>♀️ Female Patients Total<br><span class='card-number2'>193</span></div>", unsafe_allow_html=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
 
     st.markdown("*About half of the patients in this dataset are diagnosed with heart disease, highlighting the importance of predictive modeling.*")
     
     st.markdown("---")
+
     st.caption("Dataset Source: Kaggle - Heart Failure Prediction (fedesoriano, 2021). For research and educational purposes only.")
 
+# EDA Page
 elif menu == "EDA":
     st.header("📊 Exploratory Data Analysis")
     st.markdown("---")
@@ -209,16 +216,19 @@ elif menu == "EDA":
         st.pyplot(fig)
 
         if gender_filter == "👥 All":
-            st.write("Most of the patients in this dataset are middle‑aged adults, with the largest group falling between 50 and 60 years old. " \
-            " The numbers taper off at younger and older ages, showing that heart disease tends to affect people most often in their mid‑life years." \
-            " In simple terms, this chart tells us that the risk is highest around the age when many people are still active in their careers and family life.")
+            st.markdown("Most of the patients in this dataset are middle‑aged adults, with the largest group falling between 50 and 60 years old. " \
+            "The numbers taper off at younger and older ages, showing that heart disease tends to affect people most often in their mid‑life years." \
+            "<span class='highlight'>In simple terms, this chart tells us that the risk is highest around the age when many people are still active in their careers and family life.</span>",
+            unsafe_allow_html=True)
         elif gender_filter == "👨 Male":
-            st.write("Among male patients, most are in their mid‑50s to early 60s. The numbers drop off at younger and older ages, " \
-            "showing that men in their middle years are the largest group represented. " \
-            "This highlights that heart disease risk for men tends to peak around mid‑life.")
+            st.markdown("Among male patients, most are in their mid‑50s to early 60s. <span class='highlight'>The numbers drop off at younger and older ages," \
+            "showing that men in their middle years are the largest group represented.</span>" \
+            "This highlights that heart disease risk for men tends to peak around mid‑life.", 
+            unsafe_allow_html=True)
         else:  # Female
-            st.write("For female patients, the distribution is more spread out, with noticeable peaks around ages 50 and 60. " \
-            "While fewer women are represented overall compared to men, the chart suggests that middle‑aged women also form an important group when studying heart disease risk.")
+            st.markdown("For female patients, the distribution is more spread out, with noticeable peaks around ages 50 and 60. " \
+            "<span class='highlight'>While fewer women are represented overall compared to men, the chart suggests that middle‑aged women also form an important group when studying heart disease risk.</span>",
+            unsafe_allow_html=True)
 
         st.markdown("---")
 
@@ -239,9 +249,10 @@ elif menu == "EDA":
         st.pyplot(fig)
 
         if disease_filter == "💓 All":
-            st.write("This chart shows that most of the patients in our dataset are men, while women make up a smaller portion.  " \
+            st.markdown("This chart shows that most of the patients in our dataset are men, while women make up a smaller portion.  " \
             "The difference is quite noticeable, with men outnumbering women by a wide margin. " \
-            "In simple terms, this tells us that heart disease in this dataset appears more frequently among men, highlighting how gender can play an important role in understanding health risks. ")
+            "<span class='highlight'>In simple terms, this tells us that heart disease in this dataset appears more frequently among men, highlighting how gender can play an important role in understanding health risks.</span>",
+            unsafe_allow_html=True)
         elif disease_filter == "💙 Healthy":
             st.write("Looking only at healthy individuals, men slightly outnumber women. " \
             "This means that in the dataset, there are more men without heart disease than women, " \
@@ -370,10 +381,10 @@ elif menu == "EDA":
         angina_counts = df["ExerciseAngina"].value_counts()
         labels = ["No", "Yes"]
         colors = ["steelblue", "salmon"]
-        # Bar chart
+        
         ax[0].bar(labels, angina_counts.values, color=colors, edgecolor="black")
         ax[0].set_title("Bar Chart")
-        # Pie chart
+
         ax[1].pie(angina_counts.values, labels=labels, autopct="%1.1f%%", colors=colors, startangle=90)
         ax[1].set_title("Pie Chart")
         st.pyplot(fig)
@@ -452,11 +463,48 @@ elif menu == "EDA":
 
         st.markdown("---")
 
+# Model Evaluation Page
 elif menu == "Model Evaluation":
     st.header("Model Evaluation")
     st.markdown("---")
-    st.subheader("Plot ROC Curves")
-    st.image(os.path.join(BASE_DIR, "..", "outputs", "roc_curves.png"), caption="ROC Curves")
+    st.subheader("Interactive ROC Curve Analysis")
+    
+    eval_data_path = os.path.join(BASE_DIR, "..", "outputs", "model_eval_data.pkl")
+
+    if not os.path.exists(eval_data_path):
+        st.warning("Data evaluasi (y_test & y_probs) tidak ditemukan. Selesaikan training terlebih dahulu.")
+    else:
+        eval_data = joblib.load(eval_data_path)
+        y_test = eval_data['y_test']
+        y_probs = eval_data['y_probs']
+    
+        fpr, tpr, thresholds = roc_curve(y_test, y_probs)
+        roc_auc = auc(fpr, tpr)
+
+        fig_roc = go.Figure()
+
+        fig_roc.add_trace(go.Scatter(x=[0, 1], y=[0, 1], 
+                                    mode='lines', 
+                                    line=dict(dash='dash', color='gray'),
+                                    name='Random Classifier'))
+
+        fig_roc.add_trace(go.Scatter(x=fpr, y=tpr, 
+                                    mode='lines', 
+                                    line=dict(color='firebrick', width=3),
+                                    name=f'Random Forest (AUC = {roc_auc:.3f})',
+                                    hovertemplate="<b>FPR</b>: %{x:.3f}<br><b>TPR</b>: %{y:.3f}<extra></extra>"))
+
+        fig_roc.update_layout(
+            title='Plot ROC Curve',
+            xaxis_title='False Positive Rate (1 - Specificity)',
+            yaxis_title='True Positive Rate (Sensitivity)',
+            legend=dict(x=0.7, y=0.2),
+            margin=dict(l=20, r=20, t=50, b=20),
+            height=1000,
+            width=1000
+        )
+
+        st.plotly_chart(fig_roc, use_container_width=False)
     
     st.subheader("Confusion Matrix")
     st.image(os.path.join(BASE_DIR, "..", "outputs", "confusion_matrices.png"), caption="Confusion Matrices")
@@ -468,14 +516,12 @@ elif menu == "Model Evaluation":
 
     st.subheader("Model Performance Summary")
 
-    # Membuat 4 kolom untuk metrik utama
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
         st.metric(label="Overall Accuracy", value="86.41%")
     
     with col2:
-        # Kita beri warna hijau atau highlight karena ini fokus utamamu
         st.metric(label="Recall (Sensitivity)", value="90.20%", delta="Top Metric")
 
     with col3:
@@ -484,7 +530,7 @@ elif menu == "Model Evaluation":
     with col4:
         st.metric(label="F1-Score", value="88.04%")
 
-    st.divider() # Garis pemisah agar rapi
+    st.divider()
     with st.expander("Why track multiple metrics?"):
         st.markdown("""
     ### Understanding Model Performance
@@ -506,7 +552,7 @@ elif menu == "Model Evaluation":
         -  0.92 is Excellent. It means the model is very reliable at sorting patients into the right categories.
     """)
     
-
+# Model Prediction Page
 elif menu == "Prediction":
     st.header("Prediction Tool")
     st.info("Please fill in the patient's clinical information below.")
