@@ -327,6 +327,13 @@ gridsearch_info = {
 joblib.dump(gridsearch_info, 'outputs/gridsearch_info.pkl')
 print("[OK] Saved: outputs/gridsearch_info.pkl")
 
+# Save y_test and y_probs for ROC Curve
+evaluation_data = {
+    'y_test': y_test,
+    'y_probs': best_rf_model.predict_proba(X_test)[:, 1]
+}
+joblib.dump(evaluation_data, 'outputs/model_eval_data.pkl')
+
 print("\n" + "="*50)
 print("MODELING COMPLETE!")
 print("="*50)
