@@ -111,6 +111,14 @@ st.markdown("""
         padding: 2px 4px;
         border-radius: 4px;
     }
+            
+    .highlight {
+        background-color: #D6FFD6; 
+        color: #0D610E;              
+        font-weight: bold;
+        padding: 2px 4px;
+        border-radius: 4px;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -118,9 +126,11 @@ st.markdown("""
 st.title("🫀 Heart Disease Prediction Dashboard")
 
 # Load dataset
+path_raw = os.path.join(BASE_DIR, "..", "Data", "heart.csv")
 path_cleaned = os.path.join(BASE_DIR, "..", "Data", "heart_cleaned.csv")
 
 df = pd.read_csv(path_cleaned)
+df_r = pd.read_csv(path_raw)
 
 st.set_page_config(initial_sidebar_state="expanded", layout="wide")
 
@@ -137,10 +147,9 @@ if menu == "Overview":
 
     st.caption("Dataset Link: [Kaggle - Heart Failure Prediction](https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction)")
 
-    df_display = df
+    df_display = df_r
     html_table = "<div class='table-container'><table><tr>"
     
-    # Table Header
     for col in df_display.columns:
         html_table += f"<th>{col}</th>"
     html_table += "</tr>"
@@ -160,20 +169,20 @@ if menu == "Overview":
     st.markdown(html_table, unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
-    col1.markdown('<div class="cardn">Number of Rows<span class="card-number">429</span></div>', unsafe_allow_html=True)
-    col2.markdown('<div class="cardn">Number of Features<span class="card-number">12</span></div>', unsafe_allow_html=True)
+    col1.markdown('<div class="cardn">Number of Rows<span class="card-number">918</span></div>', unsafe_allow_html=True)
+    col2.markdown('<div class="cardn">Number of Columns<span class="card-number">12</span></div>', unsafe_allow_html=True)
     
     st.markdown("---")
     st.subheader("📌 Key Statistics")
 
     col1, col2, col3 = st.columns(3)
-    col1.markdown('<div class="card">📈 Average Age<br>56 years</div>', unsafe_allow_html=True)
-    col2.markdown('<div class="card">❤️ Disease Rate<br>65.0%</div>', unsafe_allow_html=True)
-    col3.markdown('<div class="card">👥 Total Patients<br>429</div>', unsafe_allow_html=True)
+    col1.markdown('<div class="card">📈 Average Age<br>54 years</div>', unsafe_allow_html=True)
+    col2.markdown('<div class="card">❤️ Disease Rate<br>55,34%</div>', unsafe_allow_html=True)
+    col3.markdown('<div class="card">👥 Total Patients<br>918</div>', unsafe_allow_html=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
 
-    st.markdown("*About two-thirds of patients in this dataset are diagnosed with heart disease, highlighting the importance of predictive modeling.*")
+    st.markdown("*About half of the patients in this dataset are diagnosed with heart disease, highlighting the importance of predictive modeling.*")
     
     st.markdown("---")
     st.caption("Dataset Source: Kaggle - Heart Failure Prediction (fedesoriano, 2021). For research and educational purposes only.")
@@ -193,7 +202,7 @@ elif menu == "EDA":
         else:  
             filtered_df = df[df["Sex"] == "F"]
         
-        fig, ax = plt.subplots(figsize=(10, 5))
+        fig, ax = plt.subplots(figsize=(13, 5))
         ax.hist(filtered_df["Age"], bins=20, color="skyblue", edgecolor="black")
         ax.set_xlabel("Age")
         ax.set_ylabel("Frequency")
@@ -222,7 +231,7 @@ elif menu == "EDA":
         else: 
             filtered_df_gender = df[df["HeartDisease"] == 1]
 
-        fig, ax = plt.subplots(figsize=(10, 5))
+        fig, ax = plt.subplots(figsize=(13, 5))
         gender_counts = filtered_df_gender["Sex"].value_counts()
         ax.bar(gender_counts.index, gender_counts.values, color=["steelblue", "salmon"], edgecolor="black")
         ax.set_xlabel("Gender")
@@ -245,7 +254,7 @@ elif menu == "EDA":
 
     with tab2:
         st.subheader("Resting Blood Pressure")
-        fig, ax = plt.subplots(1, 2, figsize=(10, 5))
+        fig, ax = plt.subplots(1, 2, figsize=(15, 4))
         ax[0].hist(df["RestingBP"], bins=20, color="lightcoral", edgecolor="black")
         ax[0].set_xlabel("Resting Blood Pressure (mmHg)")
         ax[0].set_ylabel("Frequency")
@@ -262,7 +271,7 @@ elif menu == "EDA":
         st.markdown("---")
 
         st.subheader("Cholesterol")
-        fig, ax = plt.subplots(1, 2, figsize=(10, 5))
+        fig, ax = plt.subplots(1, 2, figsize=(15, 4))
         ax[0].hist(df["Cholesterol"], bins=20, color="lightgreen", edgecolor="black")
         ax[0].set_xlabel("Cholesterol (mg/dl)")
         ax[0].set_ylabel("Frequency")
@@ -279,7 +288,7 @@ elif menu == "EDA":
         st.markdown("---")
 
         st.subheader("Heart Rate Ratio Distribution")
-        fig, ax = plt.subplots(figsize=(10, 5))
+        fig, ax = plt.subplots(figsize=(13, 4))
         ax.hist(df["HR_Ratio"], bins=20, color="lightyellow", edgecolor="black")
         ax.set_xlabel("Heart Rate Ratio")
         ax.set_ylabel("Frequency")
@@ -290,10 +299,35 @@ elif menu == "EDA":
 
         st.markdown("---")
 
+        st.subheader("Scatter Plot: Age vs Max Heart Rate")
+        fig, ax = plt.subplots(figsize=(9, 7))
+        # c=df_r["HeartDisease"] akan memberikan warna berbeda untuk pasien sehat & sakit
+        scatter = ax.scatter(
+            df_r["Age"], 
+            df_r["MaxHR"], 
+            c=df_r["HeartDisease"], 
+            cmap="coolwarm", 
+            edgecolors="w",
+            zorder=3
+        )
+        ax.grid(True, alpha=1)
+        ax.set_xlabel("Age")
+        ax.set_ylabel("Max Heart Rate (MaxHR)")
+        handles, _ = scatter.legend_elements()
+        labels = ["Healthy", "Heart Disease"]
+        ax.legend(handles, labels, title="Diagnosis Status", loc="upper right")
+        st.pyplot(fig)
+
+        st.markdown("This plot confirms that while aging naturally reduces maximum heart rate, patients diagnosed with heart disease frequently fall below the expected MaxHR for their age group. " \
+        "This visualization highlights MaxHR as a critical feature for our predictive model.", 
+        unsafe_allow_html=True)
+
+        st.markdown("---")
+
         st.subheader("Fasting Blood Sugar")
         col1, col2 = st.columns(2)
         with col1:
-            fig, ax = plt.subplots(figsize=(6, 5))
+            fig, ax = plt.subplots(figsize=(5, 5))
             fbs_counts = df["FastingBS"].value_counts()
             labels = ["< 120 mg/dl", "> 120 mg/dl"]
             ax.bar([labels[int(i)] for i in fbs_counts.index], fbs_counts.values, color=["steelblue", "orange"], edgecolor="black")
@@ -301,7 +335,7 @@ elif menu == "EDA":
             plt.tight_layout()
             st.pyplot(fig)
         with col2:
-            fig, ax = plt.subplots(figsize=(6, 5))
+            fig, ax = plt.subplots(figsize=(6, 4))
             fbs_counts = df["FastingBS"].value_counts()
             labels = ["< 120 mg/dl", "> 120 mg/dl"]
             colors = ["steelblue", "orange"]
@@ -310,27 +344,29 @@ elif menu == "EDA":
             plt.tight_layout()
             st.pyplot(fig)
         
-        st.write("The majority of patients about 80% have fasting blood sugar below 120 mg/dl, which is considered normal. Around 20% have higher levels, " \
-        "indicating possible diabetes or pre‑diabetes. This chart makes it clear that while most patients maintain healthy blood sugar, a significant minority face elevated risks.")
+        st.markdown("The majority of patients about 80% have fasting blood sugar below 120 mg/dl, which is considered normal. Around 20% have higher levels, " \
+        "indicating possible diabetes or pre‑diabetes. This chart makes it clear that while most patients maintain healthy blood sugar, a significant minority face elevated risks.",
+        unsafe_allow_html=True)
 
         st.markdown("---")
 
     with tab3:
         st.subheader("Chest Pain Type Distribution")
-        fig, ax = plt.subplots(figsize=(10, 5))
+        fig, ax = plt.subplots(figsize=(15, 5))
         chest_counts = df["ChestPainType"].value_counts()
         ax.bar(chest_counts.index, chest_counts.values, color="skyblue", edgecolor="black")
         ax.set_xlabel("Chest Pain Type")
         ax.set_ylabel("Count")
         st.pyplot(fig)
 
-        st.write("Most patients report asymptomatic chest pain (ASY), meaning they don’t feel typical chest pain even though heart disease may be present. " \
-        "This is important because silent cases can be harder to detect. Other types like non‑anginal pain (NAP) and typical angina (TA) are less common, showing that chest pain symptoms vary widely across patients.")        
+        st.markdown("<span class='highlight'>Most patients report asymptomatic chest pain (ASY), meaning they don’t feel typical chest pain even though heart disease may be present.</span> " \
+        "This is important because silent cases can be harder to detect. Other types like non‑anginal pain (NAP) and typical angina (TA) are less common, showing that chest pain symptoms vary widely across patients.",
+        unsafe_allow_html=True)        
 
         st.markdown("---")
 
         st.subheader("Exercise-Induced Angina")
-        fig, ax = plt.subplots(1, 2, figsize=(10, 5))
+        fig, ax = plt.subplots(1, 2, figsize=(15, 4))
         angina_counts = df["ExerciseAngina"].value_counts()
         labels = ["No", "Yes"]
         colors = ["steelblue", "salmon"]
@@ -342,13 +378,14 @@ elif menu == "EDA":
         ax[1].set_title("Pie Chart")
         st.pyplot(fig)
 
-        st.write("The charts show that more than half of the patients do not experience angina during exercise, while about 40% do. " \
-        "This tells us that exercise can trigger chest pain in a significant portion of patients, which is a warning sign of reduced blood flow to the heart.")
+        st.markdown("The charts show that more than half of the patients do not experience angina during exercise, while about 40% do. " \
+        "<span class='highlight'>This tells us that exercise can trigger chest pain in a significant portion of patients, which is a warning sign of reduced blood flow to the heart.</span>", 
+        unsafe_allow_html=True)
 
         st.markdown("---")
 
         st.subheader("Oldpeak Distribution")
-        fig, ax = plt.subplots(1, 2, figsize=(10, 5))
+        fig, ax = plt.subplots(1, 2, figsize=(15, 4))
         ax[0].hist(df["Oldpeak"], bins=20, color="lightgreen", edgecolor="black")
         ax[0].set_title("Histogram")
         ax[0].set_xlabel("Oldpeak")
@@ -358,27 +395,30 @@ elif menu == "EDA":
         ax[1].set_ylabel("Oldpeak")
         st.pyplot(fig)
 
-        st.write("Most patients have Oldpeak values between 0 and 2, which indicates mild changes in the ECG after exercise. The boxplot highlights a median near 1 and a few outliers above 4, " \
-        "showing that while many patients have small changes, some experience much more severe shifts that could signal higher risk.")
+        st.markdown("<span class='highlight'>Most patients have Oldpeak values between 0 and 2, which indicates mild changes in the ECG after exercise.</span> " \
+        "The boxplot highlights a median near 1 and a few outliers above 4, " \
+        "showing that while many patients have small changes, some experience much more severe shifts that could signal higher risk.",
+        unsafe_allow_html=True)
 
         st.markdown("---")
 
         st.subheader("ST Slope Distribution")
-        fig, ax = plt.subplots(figsize=(10, 5))
+        fig, ax = plt.subplots(figsize=(15, 4))
         slope_counts = df["ST_Slope"].value_counts()
         ax.bar(slope_counts.index, slope_counts.values, color="orange", edgecolor="black")
         ax.set_xlabel("ST Slope")
         ax.set_ylabel("Count")
         st.pyplot(fig)
 
-        st.write("The majority of patients show a flat ST slope, which is often linked to abnormal heart function. Fewer patients have an upward slope, and only a small group show a downward slope. " \
-        "This pattern suggests that abnormal ECG slopes are common in the dataset, reinforcing the importance of monitoring heart signals closely.")
+        st.markdown("The majority of patients show a flat ST slope, which is often linked to abnormal heart function. Fewer patients have an upward slope, and only a small group show a downward slope. " \
+        "<span class='highlight'>This pattern suggests that abnormal ECG slopes are common in the dataset, reinforcing the importance of monitoring heart signals closely.</span>",
+        unsafe_allow_html=True)
     
         st.markdown("---")
 
     with tab4 :
         st.subheader("Heart Disease Distribution")
-        fig, ax = plt.subplots(figsize=(10, 5))
+        fig, ax = plt.subplots(figsize=(6, 5))
         target_counts = df["HeartDisease"].value_counts()
         labels = ["Healthy", "Heart Disease"]
         colors = ["skyblue", "lightcoral"]
@@ -386,15 +426,16 @@ elif menu == "EDA":
         ax.set_title("Proportion of Patients by Heart Disease Status")
         st.pyplot(fig)
 
-        st.write("The pie chart shows that about two‑thirds of the patients in this dataset are healthy, while roughly one‑third have heart disease. This means that although most individuals do not show signs of heart disease, " \
-        "a significant portion—more than one in three—are affected. In everyday terms, the chart highlights that heart disease is common enough to be a major concern within this population.")
+        st.markdown("The pie chart reveals a fairly balanced distribution between classes, with <span class='highlight'>55.3% (508 cases)</span> representing heart disease and <span class='highlight'>44.7% (410 cases)</span> representing normal patients. This balance is beneficial for model training as it prevents " \
+        "the classifier from becoming biased toward a majority class, ensuring reliable performance metrics for both sensitivity and specificity.", 
+        unsafe_allow_html=True)
 
         st.markdown("---")
 
         st.subheader("Feature Correlation Heatmap")
         numeric_df = df.select_dtypes(include=["int64", "float64"])
         corr = numeric_df.corr()
-        fig, ax = plt.subplots(figsize=(10, 5))
+        fig, ax = plt.subplots(figsize=(9, 4))
         sns.heatmap(corr, annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
         ax.set_title("Correlation Matrix of Numerical Features")
         st.pyplot(fig)
@@ -421,7 +462,7 @@ elif menu == "Model Evaluation":
     st.image(os.path.join(BASE_DIR, "..", "outputs", "confusion_matrices.png"), caption="Confusion Matrices")
 
     st.write("**Summary**")
-    st.write("Our model demonstrates high diagnostic accuracy with an AUC of 0.92. The Confusion Matrix shows that the model is particularly strong at identifying positive cases (85 True Positives), ensuring that the majority of high-risk patients are correctly flagged for medical review.")
+    st.write("Our model demonstrates high diagnostic accuracy with an AUC of 0.92. The Confusion Matrix shows that the model is particularly strong at identifying positive cases (92 True Positives), ensuring that the majority of high-risk patients are correctly flagged for medical review.")
 
     st.divider()
 
@@ -431,36 +472,36 @@ elif menu == "Model Evaluation":
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-        st.metric(label="Overall Accuracy", value="85.3%")
+        st.metric(label="Overall Accuracy", value="86.41%")
     
     with col2:
         # Kita beri warna hijau atau highlight karena ini fokus utamamu
-        st.metric(label="Recall (Sensitivity)", value="88.2%", delta="Top Metric")
+        st.metric(label="Recall (Sensitivity)", value="90.20%", delta="Top Metric")
 
     with col3:
-        st.metric(label="Precision", value="85.7%")
+        st.metric(label="Precision", value="85.98%")
 
     with col4:
-        st.metric(label="F1-Score", value="87.0%")
+        st.metric(label="F1-Score", value="88.04%")
 
     st.divider() # Garis pemisah agar rapi
     with st.expander("Why track multiple metrics?"):
         st.markdown("""
     ### Understanding Model Performance
     
-    * **Accuracy (85.3%) - The Overall Score**: Think of this as the model's general grade. Out of 100 people, the model correctly identifies about 85 of them. While this is a high score, accuracy doesn't tell the whole story in medical cases.
+    * **Accuracy (86.41%) - The Overall Score**: Think of this as the model's general grade. Out of 100 people, the model correctly identifies about 85 of them. While this is a high score, accuracy doesn't tell the whole story in medical cases.
     
-    * **Recall / Sensitivity (88.2%)** — :star: **Top Priority**: This is the most important metric. It measures how good the model is at "catching" people who are actually sick.
+    * **Recall / Sensitivity (90.20%)** — :star: **Top Priority**: This is the most important metric. It measures how good the model is at "catching" people who are actually sick.
         -  **Goal**: We want to make sure we don't miss anyone.
         -  **Meaning**: Out of 100 people with heart disease, we successfully find 88 of them. Only 12 might be missed, which is a very safe margin for a first-level screening.
     
-    * **Precision (85.7%)**: 
+    * **Precision (85.98%)**: 
         This measures how often the model is "right" when it says someone is sick.
         -  **Meaning**: If the model flags 100 people as having heart disease, 85 of them truly have it. The other 15 are "false alarms"—people who are actually healthy but the model suggested a check-up just to be safe.
     
-    * **F1-Score (87.0%)**: Imagine a scale balancing Recall (not missing sick people) and Precision (not giving too many false alarms). The F1-Score is the "balance point." A high score here means the model is doing a great job at both.
+    * **F1-Score (88.04%)**: Imagine a scale balancing Recall (not missing sick people) and Precision (not giving too many false alarms). The F1-Score is the "balance point." A high score here means the model is doing a great job at both.
         
-    * **ROC-AUC (0.92)**: 
+    * **ROC-AUC (0.9220)**: 
         This score tells us how "smart" the model is at telling the difference between a healthy heart and a sick heart.
         -  0.92 is Excellent. It means the model is very reliable at sorting patients into the right categories.
     """)
