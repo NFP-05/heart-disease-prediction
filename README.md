@@ -11,7 +11,7 @@ The Dataset used in this project is sourced from Kaggle:
 
 - **Dataset Link**: [https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction](https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction)
 - **Source**: Created by fedesoriano, combining 5 heart datasets (Cleveland, Hungary, Switzerland, Long Beach, and Stalog).
-- **Data Size**: 918 observations with 11 clinical features.
+- **Data Size**: 918 observations with 12 clinical features.
 
 ## 📂 Project Structure
 
