@@ -26,34 +26,38 @@ Heart-Disease-Prediction/
 │   └── modeling.py
 ├── dashboard/             # Streamlit dashboard for prediction
 │   └── dash.py
-├── outputs/               # Model and evaluation results and preprocessing 
+├── outputs/               # Model and evaluation artifacts
 │   ├── best_model.pkl
+│   ├── best_logistic_regression.pkl
 │   ├── best_model_predictions.csv
-│   ├── encoders.pkl
 │   ├── confusion_matrices.png
-│   ├── gridsearch_info.pkl
+│   ├── encoders.pkl
+│   ├── feature_comparison.png
 │   ├── hr_ratio_correlation.png
+│   ├── metrics_comparison.png
+│   ├── model_eval_data.pkl
 │   ├── model_results.csv
 │   ├── original_correlation.png
 │   ├── roc_curves.png
 │   ├── scaler.pkl
 │   ├── train_columns.pkl
-│   └── feature_importance.png
+│   └── gridsearch_info.pkl
 ├── notebooks/            # Workflow in the project
-│   └── project-walkthrough.ipynb 
+│   └── project-walkthrough.ipynb
 ├── requirements.txt
 ├── .gitignore
-└── README.md            
+└── README.md
 ```
 
 ---
 
 ## 🚀 Features
 
-- **Data Preprocessing**: Imputations, feature engineering, encoding categorical features, scaling numeric features.
+- **Data Preprocessing**: Imputation of missing values, feature engineering, categorical encoding, and feature scaling.
 - **Feature Engineering**: Create `HR_Ratio` from `MaxHR` and `Age`, then compare feature correlations before and after engineering.
-- **Model Training**: Random Forest with GridSearchCV and hold-out test evaluation.
-- **Visualization**: Correlation plots, confusion matrices, ROC curves, and model metrics.
+- **Model Training**: Compare Random Forest and Logistic Regression using GridSearchCV and a held-out test set.
+- **Evaluation**: Measure accuracy, precision, recall, specificity, F1-score, ROC-AUC, kappa, and G-mean.
+- **Visualization**: Generate confusion matrices, ROC curves, metric comparison plots, and feature/coefficients comparison charts.
 - **Dashboard**: Interactive Streamlit app for patient risk prediction.
 
 ---
@@ -71,7 +75,7 @@ Heart-Disease-Prediction/
 1. **Checking Dataset Quality**: Inspect missing values, duplicate rows, and zero-value entries.
 2. **Feature Engineering**: Create `HR_Ratio` and inspect correlation before and after creating the new feature.
 3. **Preprocessing**: Impute missing values, encode categorical variables, scale numeric features, and save preprocessing artifacts.
-4. **Modeling**: Train a Random Forest model, tune hyperparameters with GridSearchCV, and evaluate on a held-out test set.
+4. **Modeling**: Train a Random Forest and Logistic Regression model, tune hyperparameters with GridSearchCV, and evaluate on a held-out test set.
 5. **Evaluation**: Generate metrics, confusion matrices, ROC curves, and save results.
 6. **Deployment**: Save the best model and artifacts, then integrate with Streamlit dashboard for prediction.
 
@@ -79,123 +83,81 @@ Heart-Disease-Prediction/
 
 ## 📈 Model Performance
 
-After feature engineering and hyperparameter tuning, the Random Forest model achieved:
+The modeling script now compares two classifiers:
 
-- **Test Accuracy**: 86.41%
-- **ROC-AUC**: 0.9220
-- **Recall**: 90.20%
-- **Precision**: 85.98%
-- **F1-Score**: 0.8804
-- **Best Parameters**: `{'max_depth': 10, 'min_samples_split': 25, 'n_estimators': 90}`
+- **Random Forest**
+- **Logistic Regression**
+
+Both models are tuned with GridSearchCV and evaluated on a held-out test set. The script reports and saves metrics such as accuracy, precision, recall, specificity, F1-score, ROC-AUC, kappa, and G-mean.
+
+The main evaluation artifacts are stored in the outputs folder:
+
+- [outputs/model_results.csv](outputs/model_results.csv) for the summarized metrics
+- [outputs/best_model_predictions.csv](outputs/best_model_predictions.csv) for prediction results
+- [outputs/best_model.pkl](outputs/best_model.pkl) and [outputs/best_logistic_regression.pkl](outputs/best_logistic_regression.pkl) for the trained models
 
 ---
 
 ## 📊 Detailed Evaluation Results
 
-### Metrics Comparison (CV Train vs Test)
+### Metrics Comparison
 
-| Metric        | CV (Train) | Test (Blind) |
-| ------------- | ---------- | ------------ |
-| **Accuracy**  | 0.8842     | 0.8641       |
-| **Precision** | 0.8707     | 0.8598       |
-| **Recall**    | 0.9286     | 0.9020       |
-| **Spesificity**    | 0.8293     | 0.8171       |
-| **F1-Score**  | 0.8987     | 0.8804       |
-| **ROC-AUC**   | 0.9676     | 0.9220       |
-| **Kappa**     | 0.7639     | 0.7234       |
-| **G-Mean**    | 0.8775     | 0.8585       |
+The script generates a comparison table and plots for both models so you can assess which one performs better for your priority metric, such as recall or specificity.
 
 ### 📉 ROC Curves
 
-The ROC curves demonstrate excellent model discrimination ability across both datasets:
-
-![ROC Curves](outputs/roc_curves.png)
-
-**Interpretation:**
-
-- **CV Data (Train) ROC-AUC: 0.9676** - Excellent discrimination between classes
-- **Test Data (Blind) ROC-AUC: 0.9220** - Strong generalization to unseen data
-- The model achieved strong discrimination with ROC-AUC of 0.922 on test data.
-- Both curves remain close to each other, suggesting minimal overfitting
+The ROC comparison plot is saved as [outputs/roc_curves.png](outputs/roc_curves.png).
 
 ### 🔲 Confusion Matrices
 
-The confusion matrices show classification performance across training and test sets:
-
-![Confusion Matrices](outputs/confusion_matrices.png)
-
-**CV Data (Train) Analysis:**
-
-- True Negatives: 272 (Correctly identified no disease)
-- False Positives: 56 (Incorrectly predicted disease)
-- False Negatives: 29 (Missed disease cases)
-- True Positives: 377 (Correctly identified disease)
-
-**Test Data (Blind) Analysis:**
-
-- True Negatives: 67 (Correctly identified no disease)
-- False Positives: 15 (Incorrectly predicted disease)
-- False Negatives: 10 (Missed disease cases)
-- True Positives: 92 (Correctly identified disease)
-
-**Key Insight:** High recall (90.20%) on test set means the model catches 90% of actual heart disease cases, which is critical in a medical context where missing disease is more dangerous than false alarms.
+The confusion matrices for the model comparison are saved as [outputs/confusion_matrices.png](outputs/confusion_matrices.png).
 
 ### 📊 Metrics Comparison Visualization
 
-![Metrics Comparison](outputs/metrics_comparison.png)
+The bar chart for model comparison is saved as [outputs/metrics_comparison.png](outputs/metrics_comparison.png).
 
-**Bar Chart Interpretation:**
+### 🎯 Feature Interpretation
 
-- The close alignment of CV and Test metrics indicates good generalization with minimal overfitting
-- Recall is the highest metric, reflecting the model's strength in identifying positive cases
-- F1-Score balances precision and recall effectively at 0.8987 for Train Set and 0.8804 for Test Set
+The feature comparison plot is saved as [outputs/feature_comparison.png](outputs/feature_comparison.png).
 
-### 🎯 Feature Importance Analysis
+This plot shows:
 
-![Feature Importance](outputs/feature_importance.png)
+- Random Forest feature importance values
+- Logistic Regression coefficient magnitudes
 
-**Top 15 Most Important Features:**
-The feature importance plot shows which clinical indicators are most influential in predicting heart disease. Key features include:
-
-- **Heart-related metrics**: ST depression, Type of Chest Pain, and exercise-induced angina
-- **Age-related indicators**: Maximum heart rate, HR_Ratio (engineered feature)
-- **Cardiovascular markers**: Cholesterol, blood pressure indicators
-- **Activity measures**: Exercise capacity and stress response
-
-The engineered feature **HR_Ratio** (MaxHR / Age) appears in the importance rankings, validating the feature engineering approach.
+These visuals help interpret which clinical variables contribute most to the predictions.
 
 ---
 
 ## 💡 Key Insights
 
-1. **High Recall Performance**: The model achieves 90.20% recall on test data. This is crucial for medical applications where false negatives (missed disease) are more harmful than false positives.
+1. **Strong Performance of Logistic Regression**: The Logistic Regression model performs best overall on the test set, making it the preferred model for this project.
 
-2. **Excellent Discrimination**: ROC-AUC score of 0.9220 indicates the model has excellent ability to distinguish between disease and non-disease cases across various probability thresholds.
+2. **Excellent Discrimination**: The model shows strong ability to separate positive and negative cases, supported by a high ROC-AUC score.
 
-3. **Good Generalization**: The small gap between CV (96.76%) and test (92.20%) ROC-AUC scores suggests the model generalizes well to unseen data with minimal overfitting.
+3. **Good Generalization**: The evaluation results suggest the model generalizes well to unseen data with minimal overfitting.
 
-4. **Balanced Performance**: The combination of high recall (90.20%) and reasonable precision (85.98%) provides balanced protection—catching most cases while keeping false alarms manageable.
+4. **Balanced Classification**: The model provides a good trade-off between recall and specificity, which is important for medical prediction tasks.
 
-5. **Feature Engineering Value**: The engineered HR_Ratio feature contributes to model importance, demonstrating the value of domain-informed feature engineering.
+5. **Feature Engineering Value**: The engineered HR_Ratio feature contributes useful information to the predictive models.
 
 ---
 
 ## ✅ Conclusion
 
-The Random Forest classifier demonstrates **excellent performance** for heart disease prediction with:
+The Logistic Regression classifier demonstrates **strong and reliable performance** for heart disease prediction with:
 
 ### ✨ Strengths:
 
-- **High Sensitivity (90.20% Recall)**: Reliably identifies disease-positive cases
-- **Stable Model**: Minimal gap between CV and test performance (About 3-4% AUC difference)
-- **Clinical Appropriateness**: Prioritizes recall over precision, minimizing missed diagnoses
-- **Interpretability**: Feature importance provides insights into predictive factors
+- **Good Balance of Metrics**: Strong performance across accuracy, recall, specificity, and ROC-AUC
+- **Interpretability**: Coefficients are easier to interpret than tree-based models
+- **Stable Generalization**: Good performance on the held-out test set
+- **Practical Use**: Suitable as a baseline and competitive model for this classification task
 
 ### ⚠️ Limitations:
 
-- **15 False Positives**: 15 patients without disease flagged as positive
-- **10 False Negatives**: 10 disease cases missed
-- **Precision-Recall Trade-off**: Lower precision (85.98%) due to conservative threshold favoring recall
+- Some false positives and false negatives are still present, as is common in medical prediction tasks
+- The model may still benefit from further tuning, threshold adjustment, or comparison with additional algorithms
 
 ---
 
