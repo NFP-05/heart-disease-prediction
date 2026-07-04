@@ -99,6 +99,7 @@ After feature engineering and hyperparameter tuning, the Random Forest model ach
 | **Accuracy**  | 0.8842     | 0.8641       |
 | **Precision** | 0.8707     | 0.8598       |
 | **Recall**    | 0.9286     | 0.9020       |
+| **Spesificity**    | 0.8293     | 0.8171       |
 | **F1-Score**  | 0.8987     | 0.8804       |
 | **ROC-AUC**   | 0.9676     | 0.9220       |
 | **Kappa**     | 0.7639     | 0.7234       |
