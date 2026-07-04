@@ -120,26 +120,26 @@ The following tables show the main evaluation metrics for both models on the CV 
 
 ### 📉 ROC Curves
 
-![ROC Curves](outputs/roc_curves.png)
+![ROC Curves](outputs/RFLRroc_curves.png)
 
 ### 🔲 Confusion Matrices
 
-![Confusion Matrices](outputs/confusion_matrices.png)
+![Confusion Matrices](outputs/RFLRconfusion_matrices.png)
 
 ### 📊 Metrics Comparison Visualization
 
-![Metrics Comparison](outputs/metrics_comparison.png)
+![Metrics Comparison](outputs/RFLRmetrics_comparison.png)
 
 ### 🎯 Feature Interpretation
 
-![Feature Comparison](outputs/feature_comparison.png)
+![Feature Comparison](outputs/RFLRfeature_comparison.png)
 
-This plot shows:
+This section compares model explanations for both classifiers:
 
-- Random Forest feature importance values
+- Random Forest feature importances
 - Logistic Regression coefficient magnitudes
 
-These visuals help interpret which clinical variables contribute most to the predictions.
+These visuals make it easier to see which clinical features drive the predictions.
 
 ---
 
