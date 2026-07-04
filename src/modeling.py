@@ -102,10 +102,11 @@ def calculate_metrics(y_true, y_pred, y_pred_proba, dataset_name):
     roc_auc = roc_auc_score(y_true, y_pred_proba)
     kappa = cohen_kappa_score(y_true, y_pred)
     
-    # Calculate G-Mean (geometric mean of sensitivities)
+    # Calculate Specificity and G-Mean
     tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+    specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
     tpr = tp / (tp + fn) if (tp + fn) > 0 else 0  # Recall/Sensitivity
-    tnr = tn / (tn + fp) if (tn + fp) > 0 else 0  # Specificity
+    tnr = specificity  # Specificity
     g_mean = gmean([tpr, tnr])
     
     cm = confusion_matrix(y_true, y_pred)
@@ -115,6 +116,7 @@ def calculate_metrics(y_true, y_pred, y_pred_proba, dataset_name):
         'Accuracy': accuracy,
         'Precision': precision,
         'Recall': recall,
+        'Specificity': specificity,
         'F1-Score': f1,
         'ROC-AUC': roc_auc,
         'Kappa': kappa,
@@ -138,6 +140,7 @@ metrics_summary = pd.DataFrame([
         'Accuracy': f"{metrics_cv['Accuracy']:.4f}",
         'Precision': f"{metrics_cv['Precision']:.4f}",
         'Recall': f"{metrics_cv['Recall']:.4f}",
+        'Specificity': f"{metrics_cv['Specificity']:.4f}",
         'F1-Score': f"{metrics_cv['F1-Score']:.4f}",
         'Kappa': f"{metrics_cv['Kappa']:.4f}",
         'G-Mean': f"{metrics_cv['G-Mean']:.4f}",
@@ -148,6 +151,7 @@ metrics_summary = pd.DataFrame([
         'Accuracy': f"{metrics_test['Accuracy']:.4f}",
         'Precision': f"{metrics_test['Precision']:.4f}",
         'Recall': f"{metrics_test['Recall']:.4f}",
+        'Specificity': f"{metrics_test['Specificity']:.4f}",
         'F1-Score': f"{metrics_test['F1-Score']:.4f}",
         'Kappa': f"{metrics_test['Kappa']:.4f}",
         'G-Mean': f"{metrics_test['G-Mean']:.4f}",
@@ -284,6 +288,7 @@ metrics_report = {
         'Accuracy': metrics_cv['Accuracy'],
         'Precision': metrics_cv['Precision'],
         'Recall': metrics_cv['Recall'],
+        'Specificity': metrics_cv['Specificity'],
         'F1-Score': metrics_cv['F1-Score'],
         'Kappa': metrics_cv['Kappa'],
         'G-Mean': metrics_cv['G-Mean'],
@@ -293,6 +298,7 @@ metrics_report = {
         'Accuracy': metrics_test['Accuracy'],
         'Precision': metrics_test['Precision'],
         'Recall': metrics_test['Recall'],
+        'Specificity': metrics_test['Specificity'],
         'F1-Score': metrics_test['F1-Score'],
         'Kappa': metrics_test['Kappa'],
         'G-Mean': metrics_test['G-Mean'],
@@ -342,5 +348,7 @@ print(f"Best Parameters: {best_params}")
 print(f"\nTest Set Performance:")
 print(f"  Accuracy: {metrics_test['Accuracy']:.4f}")
 print(f"  ROC-AUC: {metrics_test['ROC-AUC']:.4f}")
+print(f"  Recall: {metrics_test['Recall']:.4f}")
+print(f"  Specificity: {metrics_test['Specificity']:.4f}")
 print(f"  F1-Score: {metrics_test['F1-Score']:.4f}")
 print(f"  G-Mean: {metrics_test['G-Mean']:.4f}")
