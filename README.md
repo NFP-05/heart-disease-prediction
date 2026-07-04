@@ -27,21 +27,21 @@ Heart-Disease-Prediction/
 ├── dashboard/             # Streamlit dashboard for prediction
 │   └── dash.py
 ├── outputs/               # Model and evaluation artifacts
-│   ├── best_model.pkl
-│   ├── best_logistic_regression.pkl
-│   ├── best_model_predictions.csv
-│   ├── confusion_matrices.png
+│   ├── best_LRmodel.pkl
+│   ├── best_RFmodel.pkl
+│   ├── best_RFLRmodels_predictions.csv
+│   ├── RFLRconfusion_matrices.png
 │   ├── encoders.pkl
-│   ├── feature_comparison.png
+│   ├── RFLRfeature_comparison.png
 │   ├── hr_ratio_correlation.png
-│   ├── metrics_comparison.png
-│   ├── model_eval_data.pkl
-│   ├── model_results.csv
+│   ├── RFLRmetrics_comparison.png
+│   ├── RFLRmodel_eval_data.pkl
+│   ├── RFLRmodel_results.csv
 │   ├── original_correlation.png
-│   ├── roc_curves.png
+│   ├── RFLRroc_curves.png
 │   ├── scaler.pkl
 │   ├── train_columns.pkl
-│   └── gridsearch_info.pkl
+│   └── RFLRgridsearch_info.pkl
 ├── notebooks/            # Workflow in the project
 │   └── project-walkthrough.ipynb
 ├── requirements.txt
@@ -92,9 +92,9 @@ Both models are tuned with GridSearchCV and evaluated on a held-out test set. Th
 
 The main evaluation artifacts are stored in the outputs folder:
 
-- [outputs/model_results.csv](outputs/model_results.csv) for the summarized metrics
-- [outputs/best_model_predictions.csv](outputs/best_model_predictions.csv) for prediction results
-- [outputs/best_model.pkl](outputs/best_model.pkl) and [outputs/best_logistic_regression.pkl](outputs/best_logistic_regression.pkl) for the trained models
+- [outputs/RFLRmodels_results.csv](outputs/RFLRmodels_results.csv) for the summarized metrics
+- [outputs/best_RFLRmodels_predictions.csv](outputs/best_RFLRmodels_predictions.csv) for prediction results
+- [outputs/best_RFmodel.pkl](outputs/best_RFmodel.pkl) and [outputs/best_LRmodel.pkl](outputs/best_LRmodel.pkl) for the trained models
 
 ---
 
@@ -106,17 +106,17 @@ The following tables show the main evaluation metrics for both models on the CV 
 
 #### Random Forest
 
-| Dataset      | Accuracy | Precision | Recall | Specificity | F1-Score | ROC-AUC | G-Mean |
-| ------------ | -------- | --------- | ------ | ----------- | -------- | ------- | ------ |
-| CV (Train)   | 0.8851   | 0.8707    | 0.9286 | 0.8293      | 0.8987   | 0.9676  | 0.8775 |
-| Test (Blind) | 0.8641   | 0.8598    | 0.9020 | 0.8171      | 0.8804   | 0.9220  | 0.8585 |
+| Dataset      | Accuracy | Precision | Recall | Specificity | F1-Score | ROC-AUC | G-Mean | Kappa |
+| ------------ | -------- | --------- | ------ | ----------- | -------- | ------- | ------ | ----- |
+| CV (Train)   | 0.8851   | 0.8707    | 0.9286 | 0.8293      | 0.8987   | 0.9676  | 0.8775 | 0.7639 |
+| Test (Blind) | 0.8641   | 0.8598    | 0.9020 | 0.8171      | 0.8804   | 0.9220  | 0.8585 | 0.7234 |
 
 #### Logistic Regression
 
-| Dataset      | Accuracy | Precision | Recall | Specificity | F1-Score | ROC-AUC | G-Mean |
-| ------------ | -------- | --------- | ------ | ----------- | -------- | ------- | ------ |
-| CV (Train)   | 0.8501   | 0.8491    | 0.8607 | 0.8049      | 0.8548   | 0.9255  | 0.8448 |
-| Test (Blind) | 0.8913   | 0.8942    | 0.9118 | 0.8659      | 0.9029   | 0.9280  | 0.8885 |
+| Dataset      | Accuracy | Precision | Recall | Specificity | F1-Score | ROC-AUC | G-Mean | Kappa |
+| ------------ | -------- | --------- | ------ | ----------- | -------- | ------- | ------ | ----- |
+| CV (Train)   | 0.8501   | 0.8491    | 0.8607 | 0.8049      | 0.8548   | 0.9255  | 0.8448 | 0.6952 | 
+| Test (Blind) | 0.8913   | 0.8942    | 0.9118 | 0.8659      | 0.9029   | 0.9280  | 0.8885 | 0.7795 |
 
 ### 📉 ROC Curves
 
