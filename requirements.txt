@@ -6,4 +6,8 @@ seaborn
 scikit-learn
 joblib
 scipy
+statsmodels
 plotly
+fastapi
+uvicorn
+requests
