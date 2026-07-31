@@ -21,30 +21,34 @@ Heart-Disease-Prediction/
 │   ├── heart.csv
 │   ├── heart_cleaned.csv
 │   └── heart_processed.csv
-├── src/                   # Python scripts for preprocessing & modeling
-│   ├── preprocess.py
-│   └── modeling.py
+├── src/                   #
+│   └── app_api.py
 ├── dashboard/             # Streamlit dashboard for prediction
 │   └── dash.py
 ├── outputs/               # Model and evaluation artifacts
 │   ├── best_LRmodel.pkl
-│   ├── best_RFmodel.pkl
-│   ├── best_RFLRmodels_predictions.csv
-│   ├── RFLRconfusion_matrices.png
+│   ├── best_LRmodel_predictions.csv
+│   ├── LRconfusion_matrix.png
 │   ├── encoders.pkl
-│   ├── RFLRfeature_comparison.png
+│   ├── LRfeature_importance.png
 │   ├── hr_ratio_correlation.png
-│   ├── RFLRmetrics_comparison.png
-│   ├── RFLRmodel_eval_data.pkl
-│   ├── RFLRmodel_results.csv
+│   ├── LRmetrics.png
+│   ├── LRmodel_eval_data.pkl
+│   ├── LRmodel_results.csv
 │   ├── original_correlation.png
-│   ├── RFLRroc_curves.png
+│   ├── LRroc_curve.png
 │   ├── scaler.pkl
 │   ├── train_columns.pkl
-│   └── RFLRgridsearch_info.pkl
-├── notebooks/            # Workflow in the project
-│   └── project-walkthrough.ipynb
+│   ├── logistic_regression_odds_ratio.csv
+│   └── LRgridsearch_info.pkl
+├── notebooks/            #
+│   ├── Preprocess_Heart_Disease.ipynb
+│   ├── Modeling_Heart_Disease.ipynb
+│   └── EDA_Heart_Disease.ipynb
 ├── requirements.txt
+├── docker-compose.yml
+├── Dockerfile
+├── Dockerfile.streamlit
 ├── .gitignore
 └── README.md
 ```
@@ -55,9 +59,8 @@ Heart-Disease-Prediction/
 
 - **Data Preprocessing**: Imputation of missing values, feature engineering, categorical encoding, and feature scaling.
 - **Feature Engineering**: Create `HR_Ratio` from `MaxHR` and `Age`, then compare feature correlations before and after engineering.
-- **Model Training**: Compare Random Forest and Logistic Regression using GridSearchCV and a held-out test set.
+- **Model Training**: Train Logistic Regression using GridSearchCV and a held-out test set.
 - **Evaluation**: Measure accuracy, precision, recall, specificity, F1-score, ROC-AUC, kappa, and G-mean.
-- **Visualization**: Generate confusion matrices, ROC curves, metric comparison plots, and feature/coefficients comparison charts.
 - **Dashboard**: Interactive Streamlit app for patient risk prediction.
 
 ---
@@ -75,7 +78,7 @@ Heart-Disease-Prediction/
 1. **Checking Dataset Quality**: Inspect missing values, duplicate rows, and zero-value entries.
 2. **Feature Engineering**: Create `HR_Ratio` and inspect correlation before and after creating the new feature.
 3. **Preprocessing**: Impute missing values, encode categorical variables, scale numeric features, and save preprocessing artifacts.
-4. **Modeling**: Train a Random Forest and Logistic Regression model, tune hyperparameters with GridSearchCV, and evaluate on a held-out test set.
+4. **Modeling**: Train a Logistic Regression model, tune hyperparameters with GridSearchCV, and evaluate on a held-out test set.
 5. **Evaluation**: Generate metrics, confusion matrices, ROC curves, and save results.
 6. **Deployment**: Save the best model and artifacts, then integrate with Streamlit dashboard for prediction.
 
@@ -83,18 +86,17 @@ Heart-Disease-Prediction/
 
 ## Model Performance
 
-The modeling script now compares two classifiers:
+The modeling notebook trains a single classifier:
 
-- **Random Forest**
 - **Logistic Regression**
 
-Both models are tuned with GridSearchCV and evaluated on a held-out test set. The script reports and saves metrics such as accuracy, precision, recall, specificity, F1-score, ROC-AUC, kappa, and G-mean.
+The model is tuned with GridSearchCV and evaluated on a held-out test set. The script reports and saves metrics such as accuracy, precision, recall, specificity, F1-score, ROC-AUC, kappa, and G-mean.
 
 The main evaluation artifacts are stored in the outputs folder:
 
-- [outputs/RFLRmodels_results.csv](outputs/RFLRmodels_results.csv) for the summarized metrics
-- [outputs/best_RFLRmodels_predictions.csv](outputs/best_RFLRmodels_predictions.csv) for prediction results
-- [outputs/best_RFmodel.pkl](outputs/best_RFmodel.pkl) and [outputs/best_LRmodel.pkl](outputs/best_LRmodel.pkl) for the trained models
+- [outputs/LRmodel_results.csv](outputs/LRmodel_results.csv) for the summarized metrics
+- [outputs/best_LRmodel_predictions.csv](outputs/best_LRmodel_predictions.csv) for prediction results
+- [outputs/best_LRmodel.pkl](outputs/best_LRmodel.pkl) for the trained model
 
 ---
 
@@ -102,41 +104,33 @@ The main evaluation artifacts are stored in the outputs folder:
 
 ### Metrics Comparison
 
-The following tables show the main evaluation metrics for both models on the CV and test sets.
-
-#### Random Forest
-
-| Dataset      | Accuracy | Precision | Recall | Specificity | F1-Score | ROC-AUC | G-Mean | Kappa |
-| ------------ | -------- | --------- | ------ | ----------- | -------- | ------- | ------ | ----- |
-| CV (Train)   | 0.8851   | 0.8707    | 0.9286 | 0.8293      | 0.8987   | 0.9676  | 0.8775 | 0.7639 |
-| Test (Blind) | 0.8641   | 0.8598    | 0.9020 | 0.8171      | 0.8804   | 0.9220  | 0.8585 | 0.7234 |
+The following table shows the main evaluation metrics for the model on the CV and test sets.
 
 #### Logistic Regression
 
-| Dataset      | Accuracy | Precision | Recall | Specificity | F1-Score | ROC-AUC | G-Mean | Kappa |
-| ------------ | -------- | --------- | ------ | ----------- | -------- | ------- | ------ | ----- |
-| CV (Train)   | 0.8501   | 0.8491    | 0.8607 | 0.8049      | 0.8548   | 0.9255  | 0.8448 | 0.6952 | 
+| Dataset      | Accuracy | Precision | Recall | Specificity | F1-Score | ROC-AUC | G-Mean | Kappa  |
+| ------------ | -------- | --------- | ------ | ----------- | -------- | ------- | ------ | ------ |
+| CV (Train)   | 0.8501   | 0.8491    | 0.8607 | 0.8049      | 0.8548   | 0.9255  | 0.8448 | 0.6952 |
 | Test (Blind) | 0.8913   | 0.8942    | 0.9118 | 0.8659      | 0.9029   | 0.9280  | 0.8885 | 0.7795 |
 
-### 📉 ROC Curves
+### 📉 ROC Curve
 
-![ROC Curves](outputs/RFLRroc_curves.png)
+![ROC Curve](outputs/LRroc_curve.png)
 
-### 🔲 Confusion Matrices
+### 🔲 Confusion Matrix
 
-![Confusion Matrices](outputs/RFLRconfusion_matrices.png)
+![Confusion Matrix](outputs/LRconfusion_matrix.png)
 
-### 📊 Metrics Comparison Visualization
+### 📊 Metrics Visualization
 
-![Metrics Comparison](outputs/RFLRmetrics_comparison.png)
+![Metrics](outputs/LRmetrics.png)
 
 ### 🎯 Feature Interpretation
 
-![Feature Comparison](outputs/RFLRfeature_comparison.png)
+![Feature Importance](outputs/LRfeature_importance.png)
 
-This section compares model explanations for both classifiers:
+This section shows the model explanation for the classifier:
 
-- Random Forest feature importances
 - Logistic Regression coefficient magnitudes
 
 These visuals make it easier to see which clinical features drive the predictions.
@@ -145,15 +139,13 @@ These visuals make it easier to see which clinical features drive the prediction
 
 ## 💡 Key Insights
 
-1. **Strong Performance of Logistic Regression**: The Logistic Regression model delivers the highest ROC-AUC on test data (0.9280), outperforming Random Forest (0.9220) in discrimination ability.
+1. **Strong Performance of Logistic Regression**: The Logistic Regression model delivers the highest ROC-AUC on test data (0.9280).
 
 2. **Very High Recall**: Logistic Regression achieves 91.18% recall on the test set, which is important for reducing missed heart disease cases.
 
 3. **Good Specificity**: Logistic Regression also scores 86.59% specificity on the test set, showing a balanced trade-off between catching disease and limiting false alarms.
 
-4. **Competitive Random Forest**: Random Forest remains strong with 86.41% accuracy and 90.20% recall on the test set, making it a solid comparator.
-
-5. **Feature Engineering Value**: The engineered HR_Ratio feature continues to add predictive power and is visible in both model interpretation plots.
+4. **Feature Engineering Value**: The engineered HR_Ratio feature continues to add predictive power and is visible in the model interpretation plot.
 
 ---
 
