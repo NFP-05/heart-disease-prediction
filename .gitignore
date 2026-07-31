@@ -2,3 +2,8 @@
 __pycache__/
 .vscode/
 outputs/*.html
+
+# SQLite monitoring database (auto-created at runtime)
+data/monitoring.db
+data/monitoring.db-wal
+data/monitoring.db-shm
