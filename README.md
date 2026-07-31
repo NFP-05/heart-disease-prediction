@@ -19,8 +19,7 @@ The Dataset used in this project is sourced from Kaggle:
 Heart-Disease-Prediction/
 ├── Data/                  # Raw and cleaned datasets
 │   ├── heart.csv
-│   ├── heart_cleaned.csv
-│   └── heart_processed.csv
+│   └── heart_cleaned.csv
 ├── src/                   #
 │   └── app_api.py
 ├── dashboard/             # Streamlit dashboard for prediction
@@ -105,8 +104,6 @@ The main evaluation artifacts are stored in the outputs folder:
 ### Metrics Comparison
 
 The following table shows the main evaluation metrics for the model on the CV and test sets.
-
-#### Logistic Regression
 
 | Dataset      | Accuracy | Precision | Recall | Specificity | F1-Score | ROC-AUC | G-Mean | Kappa  |
 | ------------ | -------- | --------- | ------ | ----------- | -------- | ------- | ------ | ------ |
