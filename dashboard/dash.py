@@ -16,7 +16,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # ---------------------------------------------------------------------------
 API_URL = os.environ.get("API_URL", "http://localhost:8000")
 
+# ---------------------------------------------------------------------------
 # Custom CSS
+# ---------------------------------------------------------------------------
 st.markdown("""
     <style>
     /* Layout Styles */
@@ -125,16 +127,22 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
+# ---------------------------------------------------------------------------
 # Title
+# ---------------------------------------------------------------------------
 st.title("🫀 Heart Disease Prediction Dashboard")
 
+# ---------------------------------------------------------------------------
 # Load dataset
+# ---------------------------------------------------------------------------
 path_raw = os.path.join(BASE_DIR, "..", "Data", "heart.csv")
 path_cleaned = os.path.join(BASE_DIR, "..", "Data", "heart_cleaned.csv")
-
 df = pd.read_csv(path_cleaned)
 df_r = pd.read_csv(path_raw)
 
+# ---------------------------------------------------------------------------
+# Dashboard Configuration
+# ---------------------------------------------------------------------------
 st.set_page_config(initial_sidebar_state="expanded", layout="wide")
 
 # ---------------------------------------------------------------------------
@@ -170,13 +178,17 @@ def api_post(endpoint: str, payload: dict) -> dict | None:
         st.error(f"⚠️ API error: {e}")
         return None
 
-# Navigation
+# ---------------------------------------------------------------------------
+# Page Navigation
+# ---------------------------------------------------------------------------
 menu = st.sidebar.selectbox(
     "Navigation",
     ["Overview", "Model Evaluation", "Prediction", "Model Monitoring"],
 )
 
-# Overview Page
+# ---------------------------------------------------------------------------
+# First Page: Overview 
+# ---------------------------------------------------------------------------
 if menu == "Overview":
     st.header("Overview")
     st.markdown("---")
@@ -236,7 +248,9 @@ if menu == "Overview":
 
     st.caption("Dataset Source: Kaggle - Heart Failure Prediction (fedesoriano, 2021). For research and educational purposes only.")
 
-# Model Evaluation Page
+# ---------------------------------------------------------------------------
+# Second Page: Model Evaluation 
+# ---------------------------------------------------------------------------
 elif menu == "Model Evaluation":
     st.header("Model Evaluation")
     st.markdown("---")
@@ -326,8 +340,10 @@ elif menu == "Model Evaluation":
         This score tells us how "smart" the model is at telling the difference between a healthy heart and a sick heart.
         -  0.92 is Excellent. It means the model is very reliable at sorting patients into the right categories.
     """)
-    
-# Model Prediction Page
+
+# ---------------------------------------------------------------------------
+# Third Page: Model Prediction
+# ---------------------------------------------------------------------------
 elif menu == "Prediction":
     st.header("Prediction Tool")
     st.info("Please fill in the patient's clinical information below.")
@@ -422,9 +438,9 @@ elif menu == "Prediction":
             with st.expander("📋 API Response Details"):
                 st.json(result)
 
-# ===================================================================
-# Model Monitoring Page
-# ===================================================================
+# ---------------------------------------------------------------------------
+# Fourth Page: Model Monitoring 
+# ---------------------------------------------------------------------------
 elif menu == "Model Monitoring":
     st.header("📊 Model Monitoring")
     st.markdown("---")

@@ -187,7 +187,7 @@ def log_prediction(data: PatientData, probability: float,
 # Preprocessing helper (mirrors dash.py logic)
 # ---------------------------------------------------------------------------
 
-THRESHOLD = 0.6
+THRESHOLD = 0.5
 
 
 def preprocess_input(data: PatientData) -> pd.DataFrame:

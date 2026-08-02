@@ -1,0 +1,52 @@
+# =============================================================================
+# docker-compose.yml – Heart Disease Prediction Stack
+# =============================================================================
+services:
+  # ---------------------------------------------------------------------------
+  # FastAPI Backend (model inference + monitoring database)
+  # ---------------------------------------------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: heart-api
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount outputs/ so the container can read model artefacts
+      - ./outputs:/app/outputs
+      # Persist SQLite monitoring database on host
+      - monitoring-data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Streamlit Dashboard (UI frontend)
+  # ---------------------------------------------------------------------------
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    container_name: heart-dashboard
+    ports:
+      - "8501:8501"
+    environment:
+      # Points to the FastAPI container via Docker's internal DNS
+      - API_URL=http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+# ---------------------------------------------------------------------------
+# Named volumes
+# ---------------------------------------------------------------------------
+volumes:
+  monitoring-data:
