@@ -1,0 +1,28 @@
+{
+  "name": "Heart Disease Prediction",
+  "dockerComposeFile": ["docker-compose.yml"],
+  "service": "api",
+  "workspaceFolder": "/app",
+  "forwardPorts": [8000, 8501],
+  "portsAttributes": {
+    "8000": { "label": "FastAPI (API)", "onAutoForward": "notify" },
+    "8501": { "label": "Streamlit (Dashboard)", "onAutoForward": "notify" }
+  },
+  "postCreateCommand": "echo '🚀 Codespaces ready! Run: docker-compose up --build'",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "streetsidesoftware.code-spell-checker"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python"
+      }
+    }
+  },
+  "remoteUser": "vscode",
+  "hostRequirements": {
+    "cpus": 1
+  }
+}
