@@ -210,10 +210,6 @@ def preprocess_input(data: PatientData) -> pd.DataFrame:
         ],
     )
 
-    # Feature engineering
-    raw["HR_Ratio"] = raw["MaxHR"] / (220 - raw["Age"])
-    raw.drop(columns=["MaxHR"], inplace=True)
-
     # Label encoding
     raw["Sex"] = encoders["label_encoders"]["Sex"].transform(raw["Sex"])
     raw["ExerciseAngina"] = encoders["label_encoders"]["ExerciseAngina"].transform(
@@ -225,9 +221,11 @@ def preprocess_input(data: PatientData) -> pd.DataFrame:
         raw, columns=["ChestPainType", "RestingECG", "ST_Slope"], drop_first=False
     )
 
-    # Scaling
-    numeric_cols = ["Age", "RestingBP", "Cholesterol", "Oldpeak", "HR_Ratio"]
-    raw[numeric_cols] = scaler.transform(raw[numeric_cols])
+    # Scaling 
+    numeric_cols = ["Age", "RestingBP", "Cholesterol", "Oldpeak", "MaxHR"]
+    existing_numeric = [c for c in numeric_cols if c in raw.columns]
+    if existing_numeric:
+        raw[existing_numeric] = scaler.transform(raw[existing_numeric])
 
     # Align to training columns
     raw = raw.reindex(columns=train_columns, fill_value=0)
