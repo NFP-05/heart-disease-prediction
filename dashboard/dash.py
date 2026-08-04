@@ -518,8 +518,18 @@ elif menu == "Model Monitoring":
             else:
                 return "background-color: #ccffcc; color: #006600"
 
-        styled = df_display.style.applymap(color_risk, subset=["Risk Label"])
-        st.dataframe(styled, use_container_width=True, height=400)
+        def color_risk_html(val: str) -> str:
+            if val == "High Risk":
+                return '<span style="background-color: #ffcccc; color: #a30000; padding: 2px 6px; border-radius: 4px;">High Risk</span>'
+            elif val == "Moderate Risk":
+                return '<span style="background-color: #fff3cc; color: #996600; padding: 2px 6px; border-radius: 4px;">Moderate Risk</span>'
+            else:
+                return '<span style="background-color: #ccffcc; color: #006600; padding: 2px 6px; border-radius: 4px;">Low Risk</span>'
+
+        df_display_html = df_display.copy()
+        df_display_html["Risk Label"] = df_display_html["Risk Label"].apply(color_risk_html)
+
+        st.write(df_display_html.to_html(escape=False, index=False), unsafe_allow_html=True)
 
         # Download button
         csv = df_display.to_csv(index=False)
