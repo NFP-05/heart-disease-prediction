@@ -12,3 +12,16 @@ outputs/*.csv
 data/monitoring.db*
 data/monitoring.db-wal
 data/monitoring.db-shm
+
+# Docker
+Dockerfile
+Dockerfile.streamlit
+docker-compose.yml
+docker-compose.override.yml
+
+# Docker build artifacts
+.docker/
+docker-build/
+
+# Optional: jika pernah build image lokal
+*.tar
