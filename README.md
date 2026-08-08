@@ -6,7 +6,7 @@ Heart Disease Prediction project, a machine learning workflow for data preproces
 
 | Platform                | Link                                                                                                                                                            | Status                                         | Use Case |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- | -------- |
-| **Streamlit Dashboard** | [![Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://nfp-05-heart-disease-prediction-dashboarddash-7u1akx.streamlit.app/) | **Primary demo** > UI interaktif, selalu hidup |
+| **Streamlit Dashboard** | [![Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://nfp-05-heart-disease-prediction-dashboarddash-7u1akx.streamlit.app/) | **Primary demo** > UI interactive              |
 | **FastAPI**             | [![Railway](https://img.shields.io/badge/API-Railway-0B0D0E?logo=railway)](https://heart-disease-prediction-production-9c74.up.railway.app/docs)                | **Primary API** > Inference + monitoring       |
 
 ## Dataset Information
