@@ -130,7 +130,7 @@ st.markdown("""
 # ---------------------------------------------------------------------------
 # Title
 # ---------------------------------------------------------------------------
-st.title("🫀 Heart Disease Prediction Dashboard")
+st.title("Heart Disease Prediction Dashboard")
 
 # ---------------------------------------------------------------------------
 # Load dataset
@@ -154,13 +154,13 @@ def api_get(endpoint: str, params: dict | None = None) -> dict | list | None:
         resp.raise_for_status()
         return resp.json()
     except requests.exceptions.ConnectionError:
-        st.error(f"❌ Cannot connect to API at **{API_URL}**. Make sure the FastAPI server is running.")
+        st.error(f"Cannot connect to API at **{API_URL}**. Make sure the FastAPI server is running.")
         return None
     except requests.exceptions.Timeout:
-        st.error("⏱️ API request timed out. Please try again.")
+        st.error("API request timed out. Please try again.")
         return None
     except requests.exceptions.RequestException as e:
-        st.error(f"⚠️ API error: {e}")
+        st.error(f"API error: {e}")
         return None
 
 def api_post(endpoint: str, payload: dict) -> dict | None:
@@ -169,13 +169,13 @@ def api_post(endpoint: str, payload: dict) -> dict | None:
         resp.raise_for_status()
         return resp.json()
     except requests.exceptions.ConnectionError:
-        st.error(f"❌ Cannot connect to API at **{API_URL}**. Make sure the FastAPI server is running.")
+        st.error(f"Cannot connect to API at **{API_URL}**. Make sure the FastAPI server is running.")
         return None
     except requests.exceptions.Timeout:
-        st.error("⏱️ API request timed out. Please try again.")
+        st.error("⏱API request timed out. Please try again.")
         return None
     except requests.exceptions.RequestException as e:
-        st.error(f"⚠️ API error: {e}")
+        st.error(f"API error: {e}")
         return None
 
 # ---------------------------------------------------------------------------
@@ -230,15 +230,15 @@ if menu == "Overview":
     st.subheader("📌 Key Statistics")
 
     col1, col2, col3 = st.columns(3)
-    col1.markdown('<div class="card">📈 Average Age<br><span class="card-number2">54 years</span></div>', unsafe_allow_html=True)
-    col2.markdown('<div class="card">❤️ Disease Rate<br><span class="card-number2">55,34%</span></div>', unsafe_allow_html=True)
-    col3.markdown('<div class="card">👥 Total Patients<br><span class="card-number2">918</span></div>', unsafe_allow_html=True)
+    col1.markdown('<div class="card">Average Age<br><span class="card-number2">54 years</span></div>', unsafe_allow_html=True)
+    col2.markdown('<div class="card">Disease Rate<br><span class="card-number2">55,34%</span></div>', unsafe_allow_html=True)
+    col3.markdown('<div class="card">Total Patients<br><span class="card-number2">918</span></div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
-    col1.markdown("<div class='card'>♂️ Male Patients Total<br><span class='card-number2'>725</span></div>", unsafe_allow_html=True)
-    col2.markdown("<div class='card'>♀️ Female Patients Total<br><span class='card-number2'>193</span></div>", unsafe_allow_html=True)
+    col1.markdown("<div class='card'>Male Patients Total<br><span class='card-number2'>725</span></div>", unsafe_allow_html=True)
+    col2.markdown("<div class='card'>Female Patients Total<br><span class='card-number2'>193</span></div>", unsafe_allow_html=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -367,7 +367,7 @@ elif menu == "Prediction":
         restingecg = st.selectbox("Resting ECG Result", ["Normal", "ST", "LVH"])
         slope = st.selectbox("ST Slope Type", ["Up", "Flat", "Down"])
 
-    with st.expander("ℹ️ Clinical Measurement Definitions"):
+    with st.expander("Clinical Measurement Definitions"):
         st.markdown("""
             ### **Understanding the Input Parameters**
             
@@ -429,20 +429,20 @@ elif menu == "Prediction":
             st.progress(prob)
 
             if prob > 0.8:
-                st.warning("🚨 **High Risk:** It is highly recommended to consult a cardiac specialist immediately.")
+                st.warning("**High Risk:** It is highly recommended to consult a cardiac specialist immediately.")
             elif prob > result["threshold"]:
-                st.warning("⚠️ **Moderate Risk:** Risk indicators detected. Consider improving your lifestyle and consulting a healthcare provider.")
+                st.warning("**Moderate Risk:** Risk indicators detected. Consider improving your lifestyle and consulting a healthcare provider.")
             else:
-                st.info("✅ **Low Risk:** Your results are within a healthy range. Maintain a balanced diet and regular exercise.")
+                st.info("**Low Risk:** Your results are within a healthy range. Maintain a balanced diet and regular exercise.")
 
-            with st.expander("📋 API Response Details"):
+            with st.expander("API Response Details"):
                 st.json(result)
 
 # ---------------------------------------------------------------------------
 # Fourth Page: Model Monitoring 
 # ---------------------------------------------------------------------------
 elif menu == "Model Monitoring":
-    st.header("📊 Model Monitoring")
+    st.header("Model Monitoring")
     st.markdown("---")
 
     # --- Summary Cards ---
@@ -534,7 +534,7 @@ elif menu == "Model Monitoring":
         # Download button
         csv = df_display.to_csv(index=False)
         st.download_button(
-            label="📥 Download Logs (CSV)",
+            label="Download Logs (CSV)",
             data=csv,
             file_name="prediction_logs.csv",
             mime="text/csv",
