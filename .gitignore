@@ -3,11 +3,6 @@ __pycache__/
 .vscode/
 outputs/*.html
 
-# Model outputs
-outputs/*.pkl
-outputs/*.png
-outputs/*.csv
-
 # Data monitoring 
 data/monitoring.db*
 data/monitoring.db-wal
@@ -25,3 +20,6 @@ docker-build/
 
 # Optional: jika pernah build image lokal
 *.tar
+
+# .devcontainer
+.devcontainer/devcontainer.json
