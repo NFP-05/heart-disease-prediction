@@ -168,6 +168,7 @@ flowchart LR
 
     A -- "HTTPS/API" --> B[FastAPI-local]
     B -- "logging" --> DB[(SQLite<br/>monitoring.db)]
+    B -- "log history" --> A
 ```
 
 ### Running Locally
