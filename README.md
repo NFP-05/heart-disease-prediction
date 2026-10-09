@@ -166,8 +166,8 @@ flowchart LR
         A --- P4[Model Monitoring]
     end
 
-    A -- "HTTPS / API calls" --> B[FastAPI (local)]
-    B -- "logging" --> DB[(SQLite\nmonitoring.db)]
+    A -- "HTTPS/API" --> B[FastAPI (local)]
+    B -- "logging" --> DB[(SQLite<br/>monitoring.db)]
 ```
 
 ### Running Locally
