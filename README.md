@@ -2,13 +2,6 @@
 
 Heart Disease Prediction project, a machine learning workflow for data preprocessing, model training, evaluation, and interactive dashboard deployment. Built for learning and experimentation in data science and machine learning.
 
-## Demonstration
-
-| Platform                | Link                                                                                                                                                            | Status                                         | 
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- | 
-| **Streamlit Dashboard** | [![Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://nfp-05-heart-disease-prediction-dashboarddash-7u1akx.streamlit.app/) | **Primary demo** > UI interactive              |
-| **FastAPI**             | [![Railway](https://img.shields.io/badge/API-Railway-0B0D0E?logo=railway)](https://heart-disease-prediction-production-9c74.up.railway.app/docs)                | **Primary API** > Inference + monitoring       |
-
 ## Dataset Information
 
 The Dataset used in this project is sourced from Kaggle:
@@ -52,7 +45,7 @@ Heart-Disease-Prediction/
 - **Libraries:** Pandas, NumPy, Scikit-learn, Matplotlib, Seaborn, Plotly, Statsmodels, Joblib, SciPy, Uvicorn, FastAPI, Requests
 - **Backend:** **FastAPI**, **SQLite**
 - **Frontend:** **Streamlit**
-- **Deployment:** **Streamlit Cloud**, **Railway**
+- **Deployment:** **Streamlit Cloud**
 - **Tools:** VS Code, Git/GitHub
 
 ---
@@ -157,7 +150,7 @@ Sorted by odds ratio (descending). **Bold** odds ratios are statistically signif
 
 3. **Baseline Selected for Production**: 18 features, consistent with odds ratio analysis, already deployed in dashboard, simpler to maintain.
 
-4. **Monitoring Ready**: SQLite logging + Streamlit monitoring page enables production observability. _(Note: data resets on redeploy on Railway free tier)_
+4. **Monitoring Ready**: SQLite logging + Streamlit monitoring page enables production observability. _(Note: data resets on redeploy)_
 
 ---
 
@@ -173,17 +166,40 @@ flowchart LR
         A --- P4[Model Monitoring]
     end
 
-    subgraph Backend["Railway (FastAPI)"]
-        B[app_api.py]
-        B --- E1[/predict/]
-        B --- E2[/monitoring/*/]
-        B --- E3[/health/]
-        B --- E4[/docs Swagger/]
-    end
-
-    A -- "HTTPS / API calls" --> B
+    A -- "HTTPS / API calls" --> B[FastAPI (local)]
     B -- "logging" --> DB[(SQLite\nmonitoring.db)]
 ```
+
+### Running Locally
+
+The dashboard calls the FastAPI backend over HTTP. Run both locally:
+
+1. **Start FastAPI backend** (terminal 1):
+
+   ```bash
+   uvicorn src.app_api:app --reload
+   ```
+
+   API docs available at `http://127.0.0.1:8000/docs`.
+
+2. **Start Streamlit dashboard** (terminal 2):
+
+   ```bash
+   streamlit run dashboard/dash.py
+   ```
+
+   Dashboard available at `http://localhost:8501`.
+
+3. **Configure dashboard API URL** (if backend runs on a different host/port):
+
+   Set the `API_URL` environment variable before starting Streamlit:
+
+   ```bash
+   set API_URL=http://127.0.0.1:8000
+   streamlit run dashboard/dash.py
+   ```
+
+> **Note:** The Streamlit Cloud demo runs the FastAPI backend locally within the same process, so no separate hosting is required for the public demo.
 
 ---
 
